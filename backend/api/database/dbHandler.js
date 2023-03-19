@@ -8,11 +8,17 @@ const moment = require("moment");
 
 // Helper functions
 const aes256 = require("aes256");
-const {generateNanoID, deriveKey} = require("../../Utils/keyHandler");
+const {generateNanoID, deriveKey, encryptKey, decryptKey} = require("../../Utils/keyHandler");
+const {hasNotExpired} = require("../../Utils/timeHandler");
 
 // Dotenv
 const path = require("path");
 require("dotenv").config({path: path.resolve(__dirname, "../../.env")});
+
+// URLs
+const frontendURL = process.env.frontendURL;
+const backendURL = process.env.backendURL;
+
 
 // Database setup
 const DB = new Client({
@@ -214,26 +220,36 @@ const createUser = async (newUser) => {
                     };
                     const normalizedEmail = validator.normalizeEmail(newUser.email, options);
 
-                    // DB query
-                    let query = {
-                        name: "createUser",
-                        text: "INSERT INTO users () VALUES ()",
-                        values: []
-                    };
+                    isUsernameUnique(newUser.username).then(success => {
 
-                    DB.query(query).then(response => {
+                        // DB query
+                        let currentTimestamp = new Date();
 
-                        if (response.rowCount > 0) {
-                            // success
-                            resolve(`User ${user.uuid} created at ${new Date()}`);
-                        } else {
-                            reject(`Could not create user \n ${response}`);
-                        }
+                        const columns = ['uuid', 'first_name', 'last_name', 'username', 'email', 'email_verified', 'email_verified_date', 'number_of_email_change', 'last_email_change', 'password', 'number_of_password_changes', 'last_password_change', 'data_joined', 'number_of_uploads', 'last_upload_date', 'number_of_downloads', 'last_download_date', 'user_type', 'plan_type', 'trial_used', 'trial_expiration_date', 'months_paid', 'number_of_reported_uploads', 'last_report_date'];
+                        const values = [newUser.uuid, newUser.firstName, newUser.lastName, newUser.username, normalizedEmail, false, null, 0, null, hashedPassword, 0, null, currentTimestamp, 0, null, 0, null, "user", "free", false, null, 0, 0, null];
+
+                        let query = {
+                            name: 'createUser',
+                            text: `INSERT INTO users (${columns.join(', ')}) VALUES (${values.map((_, i) => '$' + (i + 1)).join(', ')})`,
+                            values
+                        };
+
+                        DB.query(query).then(response => {
+
+                            if (response.rowCount > 0) {
+                                // success
+                                resolve(`User ${user.uuid} created at ${new Date()}`);
+                            } else {
+                                reject(`Could not create user \n ${response}`);
+                            }
+
+                        }, err => {
+                            reject(err);
+                        });
 
                     }, err => {
                         reject(err);
                     });
-
 
                 }, err => {
                     
@@ -383,7 +399,7 @@ const verifyEmail = async (email) => {
                     resolve(`${user.uuid} has verified the email ${email}`);
                 }, err => {
                     console.error(err);
-                    reject("Could not verifiy email");
+                    reject("Could not verify email");
                 });
             } else {
                 // email already verified
@@ -409,6 +425,38 @@ const isVerified = async (email) => {
                     verifiedDate: null
                 });
             }
+
+        }, err => {
+            console.error(err);
+            reject("User does not exist");
+        });
+    });
+};
+
+const addUserDownloadNumber = async (email, numOfDownloads) => {
+    return new Promise((resolve, reject) => {
+        getUserByEmail(email).then(user => {
+
+            // new number of downloads
+            let newDownloadNumber = email.number_of_downloads+numOfDownloads;
+
+            // last download date
+            let timestamp = new Date();
+
+            let query = {
+                name: "addUserDownloadNumber",
+                text: "UPDATE users SET number_of_downloads = $1,last_download_date=$2 WHERE email = $3",
+                values: [newDownloadNumber, timestamp, email]
+            };
+
+            DB.query(query).then(response => {
+
+                resolve(`${user.uuid} has downloaded ${numOfDownloads} new files on ${timestamp} bringing their total to ${newDownloadNumber}`);
+
+            }, err => {
+                console.error(err);
+                reject("Could not verify email");
+            });
 
         }, err => {
             console.error(err);
@@ -492,9 +540,263 @@ const downloadAccountData = async (userId) => {
     });
 };
 
+// KEYS --------------------------------------------------------------------------
+
+// key is already encrypted
+const createKey = async (userId, key) => {
+    return new Promise((resolve, reject) => {
+        // timeStamp = updated_date = creation_date on creation
+        let timestamp = new Date();
+
+        let query = {
+            name: "createKey",
+            text: "INSERT INTO keys (user_id, key, updated_date, creation_date) VALUES ($1,$2,$3,$4)",
+            values: [userId, key, timestamp, timestamp]
+        };
+
+        DB.query(query).then(response => {
+            if (response.rowCount > 0) {
+                // success
+                resolve(`Key for user: ${userId} created on ${timestamp}`);
+            } else {
+                reject("Could not create key!");
+            }
+        }, err => {
+            // fail
+            console.log(err);
+            reject(err);
+        });
+    });
+};
+
+const updateKey = async (userId, key) => {
+    return new Promise((resolve, reject) => {
+        let updatedTimestamp = new Date();
+
+        let query = {
+            name: "updateKey",
+            text: "UPDATE keys SET key = $1, updated_date = $2 WHERE user_id = $3",
+            values: [key, updatedTimestamp, userId]
+        };
+
+        DB.query(query).then(response => {
+            resolve(response);
+        }, err => {
+            reject(err);
+        });
+    });
+};
+
+const deleteKey = async (userId) => {
+    return new Promise((resolve, reject) => {
+        let query = {
+            name: "deleteKey",
+            text: "DELETE FROM keys WHERE user_id = $1",
+            values: [userId]
+        };
+
+        DB.query(query).then(response => {
+            resolve(response);
+        }, err => {
+            reject(err);
+        });
+    });
+};
+
+// Key needs to be decrypted
+const getKey = async (userId) => {
+    return new Promise((resolve, reject) => {
+        let query = {
+            name: "getKey",
+            text: "SELECT * FROM keys WHERE user_id = $1",
+            values: [userId]
+        };
+
+        DB.query(query).then(response => {
+            // decrypt key
+            if (response.rows[0]) {
+                let key = response.rows[0].key;
+
+                let decryptedKey = decryptKey(key);
+
+                resolve(decryptedKey);
+            } else {
+                reject("Could not get key");
+            }
+        }, err => {
+            reject(err);
+        });
+    });
+};
+
+// TOKENS -------------------------------------------------------------------------
+
+// Password Tokens
+const addPasswordToken = async (userId, token) => {
+    return new Promise((resolve, reject) => {
+        // check if token exists
+        getPasswordToken(userId).then(token => {
+            // delete then create
+            deletePasswordToken(userId).then(success => {
+                // token deleted, create new
+                let expire = moment().add(10, "minutes").toISOString();
+
+                const url = `${frontendURL}/forgotpassword/${token}`;
+
+                let query = {
+                    name: "addPasswordToken",
+                    text: "INSERT INTO password_tokens (user_id, token, expire) VALUES ($1,$2,$3)",
+                    values: [userId, token, expire]
+                };
+
+                DB.query(query).then(response => {
+                    if (response.rowCount > 0) {
+                        // success
+                        resolve(url);
+                    } else {
+                        reject("Could not add token");
+                    }
+                }, err => {
+                    // fail
+                    reject(err);
+                });
+
+            }, err => {
+                // failed to delete
+                console.error(err);
+                reject("Token already exists, could not delete old token, therefore did not create new token");
+            });
+
+        }, err => {
+            // token does not exist, proceed as normal
+            let expire = moment().add(10, "minutes").toISOString();
+
+            const url = `${frontendURL}/forgotpassword/${token}`;
+
+            let query = {
+                name: "addPasswordToken",
+                text: "INSERT INTO password_tokens (user_id, token, expire) VALUES ($1,$2,$3)",
+                values: [userId, token, expire]
+            };
+
+            DB.query(query).then(response => {
+                if (response.rowCount > 0) {
+                    // success
+                    resolve(url);
+                } else {
+                    reject("Could not add token");
+                }
+            }, err => {
+                // fail
+                reject(err);
+            });
+
+        });
+    });
+};
+
+// get token by user UUID
+const getPasswordToken = async (userId) => {
+    return new Promise((resolve, reject) => {
+        let query = {
+            name: "getPasswordToken",
+            text: "SELECT * FROM password_tokens WHERE user_id = $1",
+            values: [userId]
+        };
+
+        DB.query(query).then(response => {
+
+            if (response.rows[0]) {
+                resolve(response.rows[0]);
+            } else {
+                reject("Could not get token");
+            }
+
+        }, err => {
+            reject(err);
+        });
+    });
+};
+
+// Check which user is associated with a token (if it exists) as well as check if it has expired
+const checkPasswordToken = async (token) => {
+    return new Promise((resolve, reject) => {
+        let query = {
+            name: "checkPasswordToken",
+            text: "SELECT * FROM password_tokens WHERE token = $1",
+            values: [token]
+        };
+
+        DB.query(query).then(response => {
+            if (response.rows[0]) {
+                // Checks if token has expired only resolves if it hasn't
+                if (hasNotExpired(response.rows[0].expire)) {
+                    resolve(response.rows[0]);
+                } else {
+                    // if token has expired then delete and reject
+                    deletePasswordToken(response.rows[0].user_id).then(success => {
+                        reject("Token has expired");
+                    }, err => {
+                        console.error(err);
+                        reject(`Token has expired \n ${err}`);
+                    });
+                }
+
+            } else {
+                reject("Token does not exist");
+            }
+        }, err => {
+            reject(`Couldn't check password token \n ${err}`);
+        });
+    });
+};
+
+const deletePasswordToken = async (userId) => {
+    return new Promise((resolve, reject) => {
+        let query = {
+            name: "deletePasswordToken",
+            text: "DELETE FROM password_tokens WHERE user_id = $1",
+            values: [userId]
+        };
+
+        DB.query(query).then(response => {
+            resolve(`Password Token Deleted \n ${response}`);
+        }, err => {
+            reject(err);
+        });
+    });
+};
+
 module.exports = {
     // Users
     getUserByUUID,
     getUserByEmail,
     getAllUsers,
+    isUsernameUnique,
+    checkUserExistance,
+    createUser,
+    deleteUser,
+    changeUserFirstName,
+    changeUserLastName,
+    changeUserUsername,
+    changeUserEmail,
+    verifyEmail,
+    isVerified,
+    authenticate,
+
+    // User Privacy
+    downloadAccountData,
+
+    // Keys
+    createKey,
+    updateKey,
+    deleteKey,
+    getKey,
+
+    // Tokens
+    // Password Tokens
+    addPasswordToken,
+    getPasswordToken,
+    checkPasswordToken,
+    deletePasswordToken,
 };
