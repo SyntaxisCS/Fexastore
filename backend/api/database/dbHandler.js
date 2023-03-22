@@ -445,7 +445,7 @@ const addUserDownloadNumber = async (email, numOfDownloads) => {
 
             let query = {
                 name: "addUserDownloadNumber",
-                text: "UPDATE users SET number_of_downloads = $1,last_download_date=$2 WHERE email = $3",
+                text: "UPDATE users SET number_of_downloads = $1,last_download_date = $2 WHERE email = $3",
                 values: [newDownloadNumber, timestamp, email]
             };
 
@@ -455,13 +455,47 @@ const addUserDownloadNumber = async (email, numOfDownloads) => {
 
             }, err => {
                 console.error(err);
-                reject("Could not verify email");
+                reject("Could not update user download number");
             });
 
         }, err => {
             console.error(err);
             reject("User does not exist");
         });
+    });
+};
+
+const addUserUploadNumber = async (email, numOfUploads) => {
+    return new Promise((resolve, reject) => {
+        getUserByEmail(email).then(user => {
+
+            // new number of uploads
+            let newUploadNumber = email.number_of_uploads + numOfUploads;
+
+            // last upload date
+            let timestamp = new Date();
+
+            let query = {
+                name: "addUserUploadNumber",
+                text: "UPDATE users SET number_of_uploads = $1,last_upload_date = $2 WHERE email = $3",
+                values: [newUploadNumber, timestamp, email]
+            };
+
+            DB.query(query).then(response => {
+
+                resolve(`${user.uuid} has uploaded ${numOfUploads} new files on ${timestamp} bringing their total to ${newUploadNumber}`);
+
+            }, err => {
+                console.error(err);
+                reject("Could not update user upload number");
+            });
+
+        }, err => {
+            console.error(err);
+            reject("User does not exist");
+        });
+        
+
     });
 };
 
@@ -767,6 +801,116 @@ const deletePasswordToken = async (userId) => {
     });
 };
 
+// Email Verification Tokens
+const addVerificationToken = async (userId, token) => {
+    return new Promise((resolve, reject) => {
+        // check if already exists
+        getVerificationToken(userId).then(oldToken => {
+            // delete then create
+            deleteVerificationToken(userId).then(success => {
+
+                // create token
+                let expire = moment().add(10, "minutes").toISOString();
+
+                const url = `${frontendURL}/verify/${token}`;
+
+                let query = {
+                    name: "addVerificationToken",
+                    text: "INSERT INTO verification_tokens (user_id, token, expire) VALUES ($1,$2,$3)",
+                    values: [userId, token, expire]
+                };
+
+                DB.query(query).then(response => {
+                    if (response.rowCount > 0) {
+                        // success
+                        resolve(url);
+                    } else {
+                        reject("Could not add token");
+                    }
+                }, err => {
+                    console.error(err);
+                    reject(err);
+                });
+
+            }, err => {
+                // failed to delete
+                console.error(err);
+                reject("Token already exists, could not delete old token, therefore did not create new token");
+            });
+        }, err => {{
+            // if no then create
+        }});
+    });
+};
+
+// get token by user UUID
+const getVerificationToken = async (userId) => {
+    return new Promise((resolve, reject) => {
+        let query = {
+            name: "getVerificationToken",
+            text: "SELECT * FROM verification_tokens WHERE user_id = $1",
+            values: [userId]
+        };
+
+        DB.query(query).then(response => {
+            if (response.rows[0]) {
+                resolve(response.rows[0]);
+            } else {
+                reject("Token does not exist");
+            }
+        }, err => {
+            reject(err);
+        });
+    });
+};
+
+const checkVerificationToken = async (token) => {
+    return new Promise((resolve, reject) => {
+        let query = {
+            name: "checkVerificationToken",
+            text: "SELECT * FROM verification_tokens WHERE token = $1",
+            values: [token]
+        };
+
+        DB.query(query).then(response => {
+            if (response.rows[0]) {
+                // checks if token expired only resolves if it hasn't
+                if (hasNotExpired(response.rows[0].expire)) {
+                    resolve(response.rows[0]);
+                } else {
+                    // if token expired delete and reject
+                    deleteVerificationToken(response.rows[0].user_id).then(success => {
+                        reject("Token has expired");
+                    }, err => {
+                        console.error(err);
+                        reject("Token has expired");
+                    });
+                }
+            } else {
+                reject("Token does not exist");
+            }
+        }, err => {
+            reject(err);
+        });
+    });
+};
+
+const deleteVerificationToken = async (userId) => {
+    return new Promise((resolve, reject) => {
+        let query = {
+            name: "deleteVerificationToken",
+            text: "DELETE FROM verification_tokens WHERE user_id = $1",
+            values: [userId]
+        };
+
+        DB.query(query).then(response => {
+            resolve(response);
+        }, err => {
+            reject(err);
+        });
+    });
+};
+
 module.exports = {
     // Users
     getUserByUUID,
@@ -799,4 +943,10 @@ module.exports = {
     getPasswordToken,
     checkPasswordToken,
     deletePasswordToken,
+
+    // Email Verification Tokens
+    addVerificationToken,
+    getVerificationToken,
+    checkVerificationToken,
+    deleteVerificationToken,
 };
