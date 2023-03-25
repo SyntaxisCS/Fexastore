@@ -1,6 +1,6 @@
 // Express
 const express = require("express");
-// rate limit
+const {rateLimit, MemoryStore} = require("express-rate-limit");
 
 // Passport
 const passport = require("passport");
@@ -24,6 +24,7 @@ const ensureAuthentication = (req, res, next) => {
 };
 
 // Rate limiters
+
 // forgot password
 
 // email limiter
