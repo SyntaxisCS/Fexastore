@@ -6,6 +6,9 @@ const {BrowserRouter, Routes, Route} = require("react-router-dom");
 import "./index.css";
 
 // Pages
+import { LoginPage } from "./Pages/loginPage";
+import { AuthProvider } from "./Utils/Authentication/auth";
+import { ThemeProvider } from "./Utils/Themes/theme";
 
 // Replace this with completed pages
 // from pages directory: single react components that envelope several components into a single page
@@ -16,9 +19,13 @@ import "./index.css";
 // import {FiveHundredErrorPage} from "./Pages/500";
 
 ReactDOM.render((
-    <BrowserRouter>
-        <Routes>
-            {/*<Route path="/" element={}/>*/}
-        </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+        <ThemeProvider>
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/" element={<LoginPage/>}/>
+                </Routes>
+            </BrowserRouter>
+        </ThemeProvider>
+    </AuthProvider>
 ), document.getElementById("root"));

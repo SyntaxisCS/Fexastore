@@ -6,32 +6,41 @@ const cookies = new Cookies();
 
 export const ThemeProvider = ({children}) => {
     const [theme, setTheme] = React.useState(null);
+    const cookieName = "$2a$12$ISGZk0Tm4PHs629z12WG9uySa9/1oohRRRgbuEzTVY9q5T6CzFVpa"
 
     const changeTheme = (newTheme) => {
         switch(newTheme) {
             case "light":
+                setTheme("lightTheme");
+                cookies.remove(cookieName);
+                cookies.set(cookieName, "light");
                 break;
 
             case "dark":
+                setTheme("darkTheme");
+                cookies.remove(cookieName);
+                cookies.set(cookieName, "dark");
                 break;
 
             default:
-                this.setState({ theme: "darkTheme"});
+                setTheme("darkTheme");
+                cookies.remove(cookieName);
+                cookies.set(cookieName, "dark");
                 break;
         }
     };
 
     React.useEffect(() => {
-        let savedTheme = cookies.get("$2a$12$ISGZk0Tm4PHs629z12WG9uySa9/1oohRRRgbuEzTVY9q5T6CzFVpa");
+        let savedTheme = cookies.get(cookieName);
         if (savedTheme) {
-            this.changeTheme(savedTheme);
+           setTheme(savedTheme);
         } else {
-            this.changeTheme("dark");
+            setTheme("dark");
         }
     }, []);
 
     return (
-        <ThemeContext.Provider value={{theme: theme, changeTheme}}>
+        <ThemeContext.Provider value={{theme, changeTheme}}>
             {children}
         </ThemeContext.Provider>
     );

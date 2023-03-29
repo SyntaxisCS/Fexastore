@@ -1,2 +1,2 @@
-# OpenData
+# Fexastore
  data marketplace for developers
