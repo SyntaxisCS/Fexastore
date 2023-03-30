@@ -1,0 +1,114 @@
+.loginForm {
+    width: 25%;
+    display: flex;
+    padding: 50px;
+    max-width: 375px;
+    min-width: 300px;
+    border-radius: 5px;
+    flex-direction: column;
+    background-color: #ffffff;
+}
+
+.loginForm label:last-of-type {
+    width: 100%;
+    color: #222237;
+    margin: 1em 0 0 0;
+}
+
+.loginForm input[type="text"], .loginForm input[type="password"] {
+    width: 100%;
+    padding: 8px;
+    margin: 8px 0;
+    outline: none;
+    color: #222237;
+    display: block;
+    font-size: 16px;
+    border-radius: 5px;
+    caret-color: #5d02fb;
+    box-sizing: border-box;
+    border: 1px solid #e2e2e2;
+    background-color: #ffffff;
+    font-family: "Poppins", sans-serif;
+}
+
+.loginForm input[type="text"]:focus, input[type="password"]:focus {
+    border: 1px solid #5d02fb;
+}
+
+.loginForm .passwordInput {
+    position: relative;
+}
+
+.loginForm .passwordInput i {
+    position: absolute;
+    top: 18px;
+    right: 10px;
+    z-index: 2;
+    cursor: pointer;
+    font-size: 20px;
+    transform: translateX(0px);
+}
+
+.loginForm .forgotText {
+    float: right;
+    cursor: pointer;
+}
+
+.loginForm .errorText {
+    display: block;
+    color: #c42b1c;
+}
+
+.loginForm .errorText.hidden {
+    display: none;
+}
+
+.loginForm button[type="submit"] {
+    width: 100%;
+    border: none;
+    margin: 3px 0;
+    color: #ffffff;
+    margin-top: 1em;
+    cursor: pointer;
+    margin-bottom: 0;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 17px;
+    font-weight: 300;
+    background: linear-gradient(to right, #5d02fb 0%, #EC02F7 140%);
+}
+
+.loginForm .signUpText {
+    width: 100%;
+    margin-top: 1.5em;
+    text-align: center;
+}
+
+.loginForm .signUpText hr {
+    border: none;
+    border-top: 2px solid #f1f1f1;
+    margin: 1em 0;
+}
+
+.loginForm .signUpText p a:hover {
+    cursor: pointer;
+    border-bottom: 2px solid #5d02fb;
+}
+
+/* Responsiveness */
+@media only screen and (max-width: 600px) {
+    .loginForm {
+        width: 50%;
+        max-width: 300px;
+        min-width: none;
+    }
+}
+
+@media only screen and (max-width: 400px) {
+    .loginForm {
+        width: 80%;
+        max-width: 250px;
+        min-width: none;
+    }
+}
+  

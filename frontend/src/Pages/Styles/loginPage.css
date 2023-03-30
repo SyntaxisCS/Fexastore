@@ -1,0 +1,48 @@
+.loginPage {
+    height: 100vh;
+    color: #222237;
+    background-color: #f3f5f7;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+}
+  
+  .loginPage .logo {
+    width: 12.5%;
+    margin: 2em;
+    min-width: 175px;
+    max-width: 225px;
+  }
+  
+  .loginPage .header {
+    margin: 2em 0 0 0;
+    display: flex;
+  }
+  
+  .loginPage .header h1 {
+    margin: auto;
+    margin-bottom: 0.25em;
+  }
+  
+  /* Dark Theme */
+  .loginPage.darkTheme {
+    color: #ffffff;
+    background-color: #000000;
+  }
+  
+/* Responsiveness */
+@media only screen and (max-width: 600px) {
+    .loginPage .logo {
+        width: 50%;
+        max-width: 200px;
+    }
+}
+
+@media only screen and (max-width: 400px) {
+    .loginPage .logo {
+        width: 80%;
+        max-width: 150px;
+    }
+}
+  

@@ -9,6 +9,10 @@ import {useTheme} from "../../Utils/Themes/theme";
 import "./loginForm.css";
 
 export const LoginForm = () => {
+    // URLS
+    const frontendURL = process.env.frontendURL;
+    const backendURL = process.env.backendURL;
+
     const auth = useAuth();
     const theme = useTheme().theme;
     const navigate = useNavigate();
@@ -35,7 +39,9 @@ export const LoginForm = () => {
             setPasswordType(newEdit);
         } else {
             let newEdit = {...passwordType};
-            newEdit.inputTYpe = "password";
+            newEdit.inputType = "password";
+            newEdit.eye = true;
+            setPasswordType(newEdit);
         }
     };
 
@@ -43,6 +49,8 @@ export const LoginForm = () => {
         console.info(`Logging in...`);
         event.preventDefault();
         // prepare inputs
+
+        checkInputs(loginState.email, loginState.password);
     };
 
     const handleLogin = (user) => {
@@ -58,30 +66,92 @@ export const LoginForm = () => {
         navigate("/forgotpassword");
     };
 
-    const apiCall = () => {
+    const checkInputs = (email, password) => {
+        if (email != "" && password != "") {
+            const trimmedEmail = email.trim();
+            const trimmedPassword = password.trim();
 
+
+            // Email
+            if (!validator.isEmail(trimmedEmail)) {
+               setFormError("Invalid email address");
+
+               // Stop function
+               return null; 
+            }
+
+            // Escape and Encode Email and password
+            const encodedEmail = encodeURIComponent(trimmedEmail);
+            const encodedPassword = encodeURIComponent(trimmedPassword);
+
+            apiCall(encodedEmail, encodedPassword);
+
+        } else {
+            setFormError("Please fill out all of the required fields");
+        }
+    };
+
+    const apiCall = (email, password) => {
+        let callBody = {
+            email: email,
+            password: password
+        };
+
+        axios.post(`${backendURL}/users/login`, callbody, {
+            headers: {
+                "Content-Type": "application/json"
+            },
+            withCredentials: true
+        }).then(response => {
+            // Clear any form errors
+            setFormError("");
+
+            handleLogin(response.data);
+        }, err => {
+            let errReponse = err.response;
+
+            if (errReponse.status === 401) {
+                // Password is incorrect
+                setFormError("Password is incorrect");
+            } else if (errReponse.status === 404) {
+                // User does not exist
+                setFormError("That account does not exist");
+            } else {
+                console.error(err);
+                // Other server error
+                setFormError("Error during login. Please try again later");
+            }
+        });
     };
 
     return (
         <div className={`loginForm ${theme}`}>
-            <div className={`header ${theme}`}>
-                <h1>Login</h1>
-            </div>
-
-            <label htmlFor="email">Email</label>
+            {/*Email*/}
+            <label htmlFor="email">Email address</label>
             <input type="text" name="email" onChange={handleInputChange}/>
 
-            <label htmlFor="password">Password</label>
+            {/*Password*/}
+            <label htmlFor="password">Password <span className={`forgotText ${theme}`} onClick={forgotPasswordClick}>Forgot?</span></label> 
             <div className={`passwordInput ${theme}`}>
                 <input type={passwordType.inputType} name="password" onChange={handleInputChange}/>
-                <i className={`bx ${passwordType.eye ? "bx-hide" : "bx-show-alt"}`} onChange={handleInputChange}/>
+                <i className={`bx ${passwordType.eye ? "bx-hide" : "bx-show-alt"}`} onClick={handlePasswordType}/>
             </div>
-
-            <p className={`forgotText ${theme}`} onClick={forgotPasswordClick}/>
 
             {formError === "" ? <p className="errorText hidden">error</p> : <p className="errorText">{formError}</p>}
 
-            <button type="submit">Login</button>
+            <button type="submit" onClick={handleSubmit}>Login</button>
+
+            {/*Login with SSO (Google, Github)*/}
+
+            <div className={`alternativeLogin ${theme}`}>
+                
+            </div>
+
+            <div className={`signUpText ${theme}`}>
+                <hr/>
+                <p>New User? <a onClick={signUpClick}>Signup</a></p>
+            </div>
+
         </div>
     );
 };

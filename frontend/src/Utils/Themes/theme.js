@@ -35,7 +35,7 @@ export const ThemeProvider = ({children}) => {
         if (savedTheme) {
            setTheme(savedTheme);
         } else {
-            setTheme("dark");
+            setTheme("lightTheme");
         }
     }, []);
 
