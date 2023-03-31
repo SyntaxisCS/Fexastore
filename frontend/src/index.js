@@ -6,6 +6,7 @@ const {BrowserRouter, Routes, Route} = require("react-router-dom");
 import "./index.css";
 
 // Pages
+import { HomePage } from "./Pages/homePage";
 import { LoginPage } from "./Pages/loginPage";
 import { AuthProvider } from "./Utils/Authentication/auth";
 import { ThemeProvider } from "./Utils/Themes/theme";
@@ -23,7 +24,10 @@ ReactDOM.render((
         <ThemeProvider>
             <BrowserRouter>
                 <Routes>
-                    <Route path="/" element={<LoginPage/>}/>
+                    <Route path="/" element={<HomePage/>}/>
+
+                    {/*Authentication*/}
+                    <Route path="/login" element={<LoginPage/>}/>
                 </Routes>
             </BrowserRouter>
         </ThemeProvider>

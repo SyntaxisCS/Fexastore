@@ -48,8 +48,8 @@ export const LoginForm = () => {
     const handleSubmit = (event) => {
         console.info(`Logging in...`);
         event.preventDefault();
+        
         // prepare inputs
-
         checkInputs(loginState.email, loginState.password);
     };
 
@@ -97,7 +97,7 @@ export const LoginForm = () => {
             password: password
         };
 
-        axios.post(`${backendURL}/users/login`, callbody, {
+        axios.post(`${backendURL}/users/login`, callBody, {
             headers: {
                 "Content-Type": "application/json"
             },
@@ -132,6 +132,7 @@ export const LoginForm = () => {
 
             {/*Password*/}
             <label htmlFor="password">Password <span className={`forgotText ${theme}`} onClick={forgotPasswordClick}>Forgot?</span></label> 
+
             <div className={`passwordInput ${theme}`}>
                 <input type={passwordType.inputType} name="password" onChange={handleInputChange}/>
                 <i className={`bx ${passwordType.eye ? "bx-hide" : "bx-show-alt"}`} onClick={handlePasswordType}/>
@@ -144,7 +145,9 @@ export const LoginForm = () => {
             {/*Login with SSO (Google, Github)*/}
 
             <div className={`alternativeLogin ${theme}`}>
-                
+                <hr/>
+                <button><i class='bx bxl-google'/>Login with Github</button>
+                <button><i class='bx bxl-github'/>Login with Google</button>
             </div>
 
             <div className={`signUpText ${theme}`}>

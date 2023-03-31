@@ -1,5 +1,8 @@
 const React = require("react");
 
+// Utils
+const {useNavigate} = require("react-router-dom");
+
 // Components
 import { LoginForm } from "../Components/loginForm/loginForm";
 import { useTheme } from "../Utils/Themes/theme";
@@ -9,11 +12,15 @@ import "./Styles/loginPage.css";
 
 export const LoginPage = (props) => {
     const theme = useTheme().theme;
+    const navigate = useNavigate();
 
+    const homeClick = () => {
+        navigate("/");
+    };
 
     return (
         <div className="loginPage">
-            <div className={`logo ${theme}`}>
+            <div className={`logo ${theme}`} onClick={homeClick}>
                 <img src={theme === "lightTheme" ? fexaStoreLight : fexaStoreDark}/>
             </div>
 

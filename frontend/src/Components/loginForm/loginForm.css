@@ -68,14 +68,48 @@
     border: none;
     margin: 3px 0;
     color: #ffffff;
+    font-size: 17px;
+    margin-top: 1em;
+    cursor: pointer;
+    margin-bottom: 0;
+    font-weight: 300;
+    padding: 10px 15px;
+    border-radius: 5px;
+    background: linear-gradient(to right, #5d02fb 0%, #EC02F7 140%);
+}
+
+.loginForm button[type="submit"]:hover {
+    background: #5d02fb;
+}
+
+.loginForm .alternativeLogin {
+    width: 100%;
+    margin-top: 1.5em;
+    text-align: center;
+}
+
+.loginForm .alternativeLogin hr {
+    border: none;
+    border-top: 2px solid #f1f1f1;
+    margin: 1em 0;
+}
+
+.loginForm .alternativeLogin button {
+    width: 100%;
+    border: none;
+    margin: 3px 0;
+    color: #222237;
     margin-top: 1em;
     cursor: pointer;
     margin-bottom: 0;
     padding: 10px 15px;
     border-radius: 5px;
-    font-size: 17px;
-    font-weight: 300;
-    background: linear-gradient(to right, #5d02fb 0%, #EC02F7 140%);
+    font-size: 19px;
+}
+
+.loginForm .alternativeLogin button i {
+    font-size: 20px;
+    margin-right: 0.25em;
 }
 
 .loginForm .signUpText {

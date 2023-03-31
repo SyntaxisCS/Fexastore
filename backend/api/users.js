@@ -60,7 +60,11 @@ users.post("/login", passport.authenticate("local", {failureMessage: {error: "Co
         res.status(200).send(`User ${user.uuid} logged in on ${new Date()}`);
     }, err => {
         console.error(err);
-        res.status(500).send({error: "Could not find user"});
+        if (err.status === 404) {
+            res.status(err.status).send({error: err.message});
+        } else {
+            res.status(err.status).send({error: err.message});
+        }
     });
 });
 
