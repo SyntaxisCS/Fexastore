@@ -1,14 +1,16 @@
 const React = require("react");
 
 // Components
-import { SideBar } from "../Components/sideBar/sideBar";
+import { TopBar } from "../Components/topBar/topBar";
+import { SearchBar } from "../Components/homePage/searchBar/searchBar";
 import "./Styles/homePage.css";
 
 export const HomePage = (props) => {
 
     return (
         <div className="homePage">
-            <SideBar/>
+            <TopBar/>
+            <SearchBar/>
         </div>
     );
 };
