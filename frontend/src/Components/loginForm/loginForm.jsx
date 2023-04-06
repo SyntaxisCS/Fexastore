@@ -146,8 +146,9 @@ export const LoginForm = () => {
 
             <div className={`alternativeLogin ${theme}`}>
                 <hr/>
-                <button><i class='bx bxl-google'/>Login with Github</button>
-                <button><i class='bx bxl-github'/>Login with Google</button>
+                <button><i class='bx bxl-github'/>Login with Github</button>
+                <button><i class='bx bxl-google'/>Login with Google</button>
+                <button><i class='bx bxl-github'/>Login with SimpleLogin</button>
             </div>
 
             <div className={`signUpText ${theme}`}>

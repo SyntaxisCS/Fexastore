@@ -19,3 +19,49 @@
     border: 1px solid #dadce0;
     font-family: "Poppins", sans-serif;
 }
+
+.filterDropdown {
+    top: 12em;
+    width: 200px;
+    right: 28.5em;
+    font-size: 25px;
+    text-align: right;
+    position: absolute;
+}
+
+.searchBar .filterDropdownContent {
+    top: 100%;
+    z-index: 1;
+    width: 100%;
+    padding: 10px;
+    display: flex;
+    text-align: left;
+    position: absolute;
+    border-radius: 5px;
+    flex-direction: column;
+    background-color: #fff;
+    border: 1px solid #dadce0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.filterDropdown .filterDropdownContent .inputs input {
+    width: 100%;
+    margin: 0;
+}
+
+.filterDropdown .filterDropdownContent .inputs button {
+    width: 47.5%;
+    border: none;
+    margin: 3px 0;
+    color: #ffffff;
+    font-size: 16px;
+    margin-top: 1em;
+    cursor: pointer;
+    margin-bottom: 0;
+    font-weight: 300;
+    background: linear-gradient(to right, #5d02fb 0%, #EC02F7 140%);
+}
+
+.filterDropdown .filterDropdownContent .inputs button:last-of-type {
+    margin-left: 5%;
+}

@@ -4,6 +4,7 @@ const React = require("react");
 import { TopBar } from "../Components/topBar/topBar";
 import { SearchBar } from "../Components/homePage/searchBar/searchBar";
 import "./Styles/homePage.css";
+import { SearchResults } from "../Components/homePage/searchResults/searchResults";
 
 export const HomePage = (props) => {
 
@@ -11,6 +12,7 @@ export const HomePage = (props) => {
         <div className="homePage">
             <TopBar/>
             <SearchBar/>
+            <SearchResults/>
         </div>
     );
 };

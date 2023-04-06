@@ -2,51 +2,33 @@ const React = require("react");
 
 // Components
 import { useTheme } from "../../../Utils/Themes/theme";
+import {useNavigate} from "react-router-dom";
 import "./searchBar.css";
 
 export const SearchBar = () => {
     const theme = useTheme().theme;
+    const navigate = useNavigate();
 
-    const filterOptions = ["Filter 1", "Filter 2", "Filter 3"];
-
-    const [query, setQuery] = React.useState({query: "", filters: []});
-    const [selectedFilter, setSelectedFilter] = React.useState("");
+    const [query, setQuery] = React.useState("");
 
     const handleQueryChange = (event) => {
         let target = event.target;
 
         if (target.name === "search") {
             let newEdit = {...query};
-            newEdit.query = target.value;
+            newEdit = target.value;
             setQuery(newEdit);
         }
     };
 
-    const handleFilterSelect = (event) => {
-        setSelectedFilter(event.target.value);
-    };
-
-    const handleFilterAdd = () => {
-        if (selectedFilter !== "") {
-            let newEdit = {...query};
-
-            newEdit.filters.push(selectedFilter);
-            setQuery(newEdit);
-            setSelectedFilter("");
-        }
-    };
-
-    const handleFilterRemove = (filter) => {
-        let newEdit = {...query};
-
-        newEdit.filters.filter((f) => f !== filter);
-        
-        setQuery(newEdit);
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        navigate(`?q=${query}`);
     };
 
     return (
-        <div className={`searchBar ${theme}`}>
-            <input type="text" name="search" placeholder="search" max="255" onChange={handleQueryChange}/>
-        </div>
+        <form className={`searchBar ${theme}`} onSubmit={handleSubmit}>
+            <input type="text" name="search" placeholder="search" maxLength="100" onChange={handleQueryChange}/>
+        </form>
     );
 };
