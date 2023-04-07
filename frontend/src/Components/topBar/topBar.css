@@ -28,6 +28,10 @@
     text-decoration: none;
 }
 
+.topBar a.active {
+    color: #5d02fb;
+}
+
 .topBar a i {
     text-decoration: none;
 }

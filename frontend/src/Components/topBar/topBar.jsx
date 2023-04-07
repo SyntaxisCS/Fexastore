@@ -23,9 +23,9 @@ export const TopBar = () => {
             <NavLink to="/" className="logo"><img src={theme === "lightTheme" ? fexaStoreLight : fexaStoreDark}/></NavLink>
             
             <div className="rightLinks">
-                <NavLink to="/bookmarks" title="Bookmarks"><i className="bx bx-bookmark"/></NavLink>
+                <NavLink to="/bookmarks" title="Bookmarks" className={({isActive}) => (isActive ? "active" : "none")}><i className="bx bx-bookmark"/></NavLink>
 
-                <NavLink to="/upload" title="Upload"><i className="bx bx-upload"/></NavLink>
+                <NavLink to="/upload" title="Upload" className={({isActive}) => (isActive ? "active" : "none")}><i className="bx bx-upload"/></NavLink>
 
                 <div className="dropdown">
                     <div className="userAvatar" onClick={toggleDropdown} title={username ? username : "Username"}>
@@ -33,8 +33,8 @@ export const TopBar = () => {
                     </div>
                     {showDropdown && (
                         <div className="dropdownContent">
-                        <NavLink to="/profile"><i className="bx bx-user"/> Profile</NavLink>
-                        <NavLink to="/settings"><i className="bx bx-cog"/> Settings</NavLink>
+                        <NavLink to="/profile" className={({isActive}) => (isActive ? "active" : "none")}><i className="bx bx-user"/> Profile</NavLink>
+                        <NavLink to="/settings"className={({isActive}) => (isActive ? "active" : "none")}><i className="bx bx-cog"/> Settings</NavLink>
                         </div>
                     )}
                 </div>

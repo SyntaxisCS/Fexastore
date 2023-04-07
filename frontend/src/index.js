@@ -8,6 +8,7 @@ import "./index.css";
 // Pages
 import { HomePage } from "./Pages/homePage";
 import { LoginPage } from "./Pages/loginPage";
+import { UploadPage } from "./Pages/uploadPage";
 import { AuthProvider } from "./Utils/Authentication/auth";
 import { ThemeProvider } from "./Utils/Themes/theme";
 
@@ -25,6 +26,7 @@ ReactDOM.render((
             <BrowserRouter>
                 <Routes>
                     <Route path="/" element={<HomePage/>}/>
+                    <Route path="/upload" element={<UploadPage/>}/>
 
                     {/*Authentication*/}
                     <Route path="/login" element={<LoginPage/>}/>

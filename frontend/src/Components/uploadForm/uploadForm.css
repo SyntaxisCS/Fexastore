@@ -1,0 +1,126 @@
+.uploadForm {
+    width: 25%;
+    margin: auto;
+    display: flex;
+    padding: 50px;
+    margin-top: 2em;
+    max-width: 375px;
+    min-width: 300px;
+    text-align: left;
+    border-radius: 5px;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    background-color: #ffffff;
+}
+
+.uploadForm .uploadFormInputs label {
+    width: 100%;
+    color: #222237;
+    margin: 1em 0 0 0;
+}
+
+.uploadForm input[type="text"],
+.uploadForm input[type="file"] {
+    width: 100%;
+    padding: 8px;
+    margin: 8px 0;
+    outline: none;
+    color: #222237;
+    display: block;
+    font-size: 16px;
+    border-radius: 5px;
+    caret-color: #5d02fb;
+    box-sizing: border-box;
+    border: 1px solid #e2e2e2;
+    background-color: #ffffff;
+    font-family: "Poppins", sans-serif;
+}
+
+.uploadForm input[type="text"]:focus,
+.uploadForm input[type="file"]:focus {
+    border: 1px solid #5d02fb;
+}
+
+.uploadForm button[type="submit"] {
+    width: 100%;
+    border: none;
+    margin: 3px 0;
+    color: #ffffff;
+    font-size: 17px;
+    margin-top: 1em;
+    cursor: pointer;
+    margin-bottom: 0;
+    font-weight: 500;
+    padding: 10px 15px;
+    border-radius: 5px;
+    letter-spacing: 2px;
+    background: linear-gradient(to right, #5d02fb 0%, #ec02f7 140%);
+}
+
+.uploadForm button[type="submit"]:hover {
+    background: #5d02fb;
+}
+
+.uploadDropbox {
+    display: flex;
+    padding: 20px;
+    cursor: pointer;
+    margin-top: 1.5em;
+    border-radius: 5px;
+    text-align: center;
+    margin-bottom: 10px;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    border: 2px dashed #ccc;
+}
+
+.uploadDropbox.drag {
+    color: #ffffff;
+    border-color: #5d02fb;
+    background-color: rgba(195, 78, 222, 0.3);
+}
+
+.fileStagingArea {
+    width: 95%;
+    padding: 10px;
+    margin-top: 10px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 200px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.fileDetails {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.fileName {
+    margin: 0;
+}
+
+.fileSize {
+    margin: 0;
+    font-size: 0.8rem;
+}
+
+@media only screen and (max-width: 600px) {
+    .uploadForm {
+        width: 50%;
+        max-width: 300px;
+        min-width: none;
+    }
+}
+
+@media only screen and (max-width: 400px) {
+    .uploadForm {
+        width: 80%;
+        max-width: 250px;
+        min-width: none;
+    }
+}
+  
