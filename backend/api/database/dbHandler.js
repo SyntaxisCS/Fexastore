@@ -574,6 +574,66 @@ const downloadAccountData = async (userId) => {
     });
 };
 
+// Uploads -----------------------------------------------------------------------
+
+const getUploadById = async (id) => {
+    return new Promise((resolve, reject) => {
+        
+    });
+};
+
+// returns array of up to max number of files per group (currently 10)
+const getUploadGroupById = async (id) => {
+    return new Promise((resolve, reject) => {
+        let query = {
+            name: "getUploadGroupById",
+            text: "SELECT * FROM uploads WHERE upload_group_id = $1",
+            values: [id]
+        };
+
+        DB.query(query).then(response => {
+            if (response.rows > 0) {
+
+                resolve(response.rows);
+
+            } else {
+                reject("No files with that group id");
+            }
+
+        }, err => {
+            console.error(err);
+            reject(err);
+        });
+    });
+};
+
+const createUpload = async (x) => {
+    return new Promise((resolve, reject) => {
+        // time stamp = updated_date = creation_date on creation
+        let timestamp = new Date();
+
+        let query = {
+            name: "createUpload",
+            text: "INSERT INTO uploads (id, uploader_id, group_id, upload_group_id, num_of_files_in_group, do_key, do_bucket, creation_date, updated_date, original_file_name, system_file_name, file_size, file_type) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)",
+            values: [x.id, x.uploaderId, x.groupId, x.uploadGroupId, x.numOfFiles, x.doKey, x.doBucket, timestamp, timestamp, x.originalFileName, x.systemFileName, x.fileSize, x.fileType]
+        };        
+
+        DB.query(query).then(response => {
+            if (response.rowCount > 0) {
+                // success
+                resolve(`Upload with id ${x.id} apart of group ${x.uploadGroupId} (${x.numOfFiles} files) created on ${timestamp} for user ${x.uploaderId}`);
+            } else {
+                reject("Could not create upload!");
+            }
+        }, err => {
+            // fail
+            console.error(err);
+            reject(err);
+        });
+
+    });
+};
+
 // KEYS --------------------------------------------------------------------------
 
 // key is already encrypted
@@ -930,6 +990,11 @@ module.exports = {
 
     // User Privacy
     downloadAccountData,
+
+    // Uploads
+    getUploadById,
+    getUploadGroupById,
+    createUpload,
 
     // Keys
     createKey,

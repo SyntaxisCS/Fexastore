@@ -28,7 +28,7 @@ const generateUUID = (email) => {
 
 // NanoId Generation
 const generateNanoID = () => {
-    let nano = customAlphabet(nanoAlphabet, 16);
+    let nano = customAlphabet(nanoAlphabet, 64);
     return nano();
 };
 
