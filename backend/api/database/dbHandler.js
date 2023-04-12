@@ -578,7 +578,22 @@ const downloadAccountData = async (userId) => {
 
 const getUploadById = async (id) => {
     return new Promise((resolve, reject) => {
-        
+        let query = {
+            name: "getUploadById",
+            text: "SELECT * FROM uploads WHERE id = $1",
+            values: [id]
+        };
+
+        DB.query(query).then(response => {
+            if (response.rows[0]) {
+                resolve(response.rows[0]);
+            } else {
+                reject("Could not find any uploads with that id");
+            }
+        }, err => {
+            console.error(err);
+            reject(err);
+        });
     });
 };
 
@@ -631,6 +646,22 @@ const createUpload = async (x) => {
             reject(err);
         });
 
+    });
+};
+
+const deleteUpload = async (id) => {
+    return new Promise((resolve, reject) => {
+        let query = {
+            name: "deleteUpload",
+            text: "DELETE FROM uploads WHERE id = $1",
+            values: [id]
+        };
+
+        DB.query(query).then(response => {
+            resolve(response);
+        }, err => {
+            reject(err);
+        });
     });
 };
 
@@ -995,6 +1026,7 @@ module.exports = {
     getUploadById,
     getUploadGroupById,
     createUpload,
+    deleteUpload,
 
     // Keys
     createKey,

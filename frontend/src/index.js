@@ -8,6 +8,7 @@ import "./index.css";
 // Pages
 import { HomePage } from "./Pages/homePage";
 import { LoginPage } from "./Pages/loginPage";
+import { SignUpPage } from "./Pages/signUpPage";
 import { UploadPage } from "./Pages/uploadPage";
 import { AuthProvider } from "./Utils/Authentication/auth";
 import { ThemeProvider } from "./Utils/Themes/theme";
@@ -30,6 +31,7 @@ ReactDOM.render((
 
                     {/*Authentication*/}
                     <Route path="/login" element={<LoginPage/>}/>
+                    <Route path="/signup" element={<SignUpPage/>}/>
                 </Routes>
             </BrowserRouter>
         </ThemeProvider>
