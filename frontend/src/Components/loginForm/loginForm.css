@@ -72,9 +72,10 @@
     margin-top: 1em;
     cursor: pointer;
     margin-bottom: 0;
-    font-weight: 300;
+    font-weight: 500;
     padding: 10px 15px;
     border-radius: 5px;
+    letter-spacing: 2px;
     background: linear-gradient(to right, #5d02fb 0%, #EC02F7 140%);
 }
 

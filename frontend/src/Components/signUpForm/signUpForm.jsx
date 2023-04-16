@@ -21,6 +21,7 @@ export const SignUpForm = () => {
     // States
     const [signUpState, setSignUpState] = React.useState({});
     const [passwordType, setPasswordType] = React.useState({inputType: "password", eye: true});
+    const [confirmPasswordType, setConfirmPasswordType] = React.useState({inputType: "password", eye: true});
     const [formError, setFormError] = React.useState("");
 
     const handleInputChange = (event) => {
@@ -43,6 +44,20 @@ export const SignUpForm = () => {
             newEdit.inputType = "password";
             newEdit.eye = true;
             setPasswordType(newEdit);
+        }
+    };
+
+    const handleConfirmPasswordType = () => {
+        if (confirmPasswordType.inputType === "password") {
+            let newEdit = {...confirmPasswordType};
+            newEdit.inputType = "text";
+            newEdit.eye = false;
+            setConfirmPasswordType(newEdit);
+        } else {
+            let newEdit = {...confirmPasswordType};
+            newEdit.inputType = "password";
+            newEdit.eye = true;
+            setConfirmPasswordType(newEdit);
         }
     };
 
@@ -135,10 +150,23 @@ export const SignUpForm = () => {
 
             <label htmlFor="passwordConfirm">Confirm Password</label>
             <div className={`passwordInput ${theme}`}>
-                
+                <input type={confirmPasswordType.inputType} name="confirmPassword" onChange={handleInputChange} required/>
+                <i className={`bx ${confirmPasswordType.eye ? "bx-hide" : "bx-show-alt"}`} onClick={handleConfirmPasswordType}/>
             </div>
 
             <button type="submit" onClick={handleSubmit}>Sign Up</button>
+
+            <div className={`alternativeSignup ${theme}`}>
+                <hr/>
+                <button><i class='bx bxl-github'/>Sign Up with Github</button>
+                <button><i class='bx bxl-google'/>Sign Up with Google</button>
+                <button><i class='bx bxl-github'/>Sign Up with SimpleLogin</button>
+            </div>
+
+            <div className={`loginText ${theme}`}>
+                <hr/>
+                <p>Existing User? <a onClick={loginClick}>Login</a></p>
+            </div>
         </form>
     )
 }

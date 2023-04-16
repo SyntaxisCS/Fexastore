@@ -18,7 +18,6 @@ const getFileById = async (id) => {
 
         getSignedUrl(id).then(signedUrl => {
             resolve({
-                bucket: process.env.spacesBucketName,
                 key: id,
                 url: signedUrl
             });
@@ -48,7 +47,6 @@ const getFilesByGroupId = async (userId, groupId) => {
                 getSignedUrl(file.Key).then(signedUrl => {
                     
                     files.push({
-                        bucket: file.Bucket,
                         key: file.Key,
                         url: signedUrl
                     });
@@ -104,7 +102,7 @@ const createNewFileGroupInS3 = async (files, userId) => {
             // Only upload the first 10 files
             files.slice(0, 10).forEach((file) => {
                 const randomBytes = crypto.randomBytes(8).toString("hex");
-                const fileName = `${file.originalname.length > 24 ? file.originalname.slice(0, 24) : file.originalname}${randomBytes}-${new Date()}`;
+                const fileName = `${file.originalname.length > 24 ? file.originalname.slice(0, 24) : file.originalname}${randomBytes}-${new Date().toISOString()}`;
                 const fileId = generateNanoID();
 
                 const filePath = `/${userId}/${fileGroupId}/${fileId}`;
@@ -145,6 +143,50 @@ const createNewFileGroupInS3 = async (files, userId) => {
     });
 };
 
+const addFiletoFileGroupInS3 = async (userId, fileGroupId, file) => {
+    return new Promise((resolve, reject) => {
+        if (!file && fileGroupId && userId) {
+            reject("No file provided");
+        } else {
+            // upload file to fileGroup
+            const randomBytes = crypto.randomBytes(8).toString("hex");
+            const fileName = `${file.originalname.length > 24 ? file.originalname.slice(0, 24) : file.originalname}${randomBytes}-${new Date().toISOString()}`;
+            const fileId = generateNanoID();
+
+            const filePath = `/${userId}/${fileGroupId}/${fileId}`;
+
+            const params = {
+                Bucket: process.env.spacesBucketName,
+                Key: filePath,
+                Body: file.buffer,
+                ContentType: file.mimetype
+            };
+
+            s3.upload(params).then(data => {
+
+                let fileDBObject = {
+                    id: fileId,
+                    uploaderId: userId,
+                    groupId: null,
+                    uploadGroupId: fileGroupId,
+                    numOfFiles: null,
+                    doKey: filePath,
+                    doBucket: process.env.spacesBucketName,
+                    originalFileName: file.originalname,
+                    systemFileName: fileName,
+                    fileSize: file.size,
+                    fileType: mimeTypeToFileType(file.mimetype)
+                };
+
+                resolve(fileDBObject);
+            }, err => {
+                console.error(err);
+                reject(err);
+            });
+        }
+    });
+};
+
 const deleteFileFromS3 = async (userId, fileGroupId, fileId) => {
     return new Promise((resolve, reject) => {
         let params = {
@@ -163,7 +205,21 @@ const deleteFileFromS3 = async (userId, fileGroupId, fileId) => {
 
 const deleteFileGroupFromS3 = async (userId, fileGroupId, fileIdArray) => {
     return new Promise((resolve, reject) => {
-        
+        let params = {
+            Bucket: process.env.spacesBucketName,
+            Delete: {
+                Objects: fileIdArray.map(key => ({Key: key})),
+                Quiet: false
+            }
+        };
+
+        s3.deleteObjects(params).then(data => {
+
+            resolve(`Files ${fileIdArray} deleted successfully`);
+
+        }, err => {
+            reject(`Error deleted objects: ${err}`);
+        });
     });
 };
 
@@ -172,6 +228,7 @@ module.exports = {
     getFilesByGroupId,
     getSignedUrl,
     createNewFileGroupInS3,
+    addFiletoFileGroupInS3,
     deleteFileFromS3,
     deleteFileGroupFromS3,
 };

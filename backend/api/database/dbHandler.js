@@ -665,6 +665,22 @@ const deleteUpload = async (id) => {
     });
 };
 
+const deleteUploadGroup = async (groupId) => {
+    return new Promise((resolve, reject) => {
+        let query = {
+            name: "deleteUploadGroup",
+            text: "DELETE FROM uploads WHERE upload_group_id = $1",
+            values: [groupId]
+        };
+
+        DB.query(query).then(response => {
+            resolve(response);
+        }, err => {
+            reject(err);
+        });
+    });
+};
+
 // KEYS --------------------------------------------------------------------------
 
 // key is already encrypted
@@ -1027,6 +1043,7 @@ module.exports = {
     getUploadGroupById,
     createUpload,
     deleteUpload,
+    deleteUploadGroup,
 
     // Keys
     createKey,

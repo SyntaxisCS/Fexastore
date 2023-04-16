@@ -1,0 +1,126 @@
+.signUpForm {
+    width: 25%;
+    display: flex;
+    padding: 50px;
+    max-width: 375px;
+    min-width: 300px;
+    border-radius: 5px;
+    flex-direction: column;
+    background-color: #ffffff;
+}
+
+.signUpForm label:last-of-type {
+    width: 100%;
+    color: #222237;
+    margin: 1em 0 0 0;
+}
+
+.signUpForm input[type="email"], .signUpForm input[type="text"], .signUpForm input[type="password"] {
+    width: 100%;
+    padding: 8px;
+    margin: 8px 0;
+    outline: none;
+    color: #222237;
+    display: block;
+    font-size: 16px;
+    border-radius: 5px;
+    caret-color: #5d02fb;
+    box-sizing: border-box;
+    border: 1px solid #e2e2e2;
+    background-color: #ffffff;
+    font-family: "Poppins", sans-serif;
+}
+
+.signUpForm input[type="email"]:focus, .signUpForm input[type="text"]:focus, .signUpForm input[type="password"]:focus {
+    border: 1px solid #5d02fb;
+}
+
+.signUpForm .passwordInput {
+    position: relative;
+}
+
+.signUpForm .passwordInput i {
+    position: absolute;
+    top: 18px;
+    right: 10px;
+    z-index: 2;
+    cursor: pointer;
+    font-size: 20px;
+    transform: translateX(0px);
+}
+
+.signUpForm .errorText {
+    display: block;
+    color: #c42b1c;
+}
+
+.signUpForm .errorText.hidden {
+    display: none;
+}
+
+.signUpForm button[type="submit"] {
+    width: 100%;
+    border: none;
+    margin: 3px 0;
+    color: #ffffff;
+    font-size: 17px;
+    margin-top: 1em;
+    cursor: pointer;
+    margin-bottom: 0;
+    font-weight: 500;
+    padding: 10px 15px;
+    border-radius: 5px;
+    letter-spacing: 2px;
+    background: linear-gradient(to right, #5d02fb 0%, #EC02F7 140%);
+}
+
+.signUpForm button[type="submit"]:hover {
+    background: #5d02fb;
+}
+
+.signUpForm .alternativeSignup {
+    width: 100%;
+    margin-top: 1em;
+    text-align: center;
+}
+
+.signUpForm .alternativeSignup hr {
+    border: none;
+    border-top: 2px solid #f1f1f1;
+    margin: 1em 0;
+}
+
+.signUpForm .alternativeSignup button {
+    width: 100%;
+    border: none;
+    margin: 3px 0;
+    color: #222237;
+    margin-top: 1em;
+    cursor: pointer;
+    margin-bottom: 0;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 19px;
+}
+
+.signUpForm .alternativeSignup button i {
+    font-size: 20px;
+    margin-right: 0.25em;
+}
+
+.signUpForm .loginText {
+    width: 100%;
+    margin-top: 1.5em;
+    text-align: center;
+}
+
+.signUpForm .loginText hr {
+    border: none;
+    border-top: 2px solid #f1f1f1;
+    margin: 1em 0;
+}
+
+.signUpForm .loginText p a:hover {
+    cursor: pointer;
+    border-bottom: 2px solid #5d02fb;
+}

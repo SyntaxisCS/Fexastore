@@ -2,6 +2,15 @@
 const express = require("express");
 const {rateLimit, MemoryStore} = require("express-rate-limit");
 
+// JSZip
+const JSZip = require("jszip");
+
+// Crypto
+const crypto = require("crypto");
+
+// Axios
+const axios = require("axios");
+
 // Multer
 const multer = require("multer");
 const upload = multer({
@@ -29,7 +38,7 @@ const uploads = express.Router();
 const { createUpload, getUploadById, getUploadGroupById } = require("./database/dbHandler");
 
 // Helpers
-const { getSignedUrl, createNewFileGroupInS3, deleteFileGroupFromS3 } = require("./cloudStorage/storageHandler");
+const { getSignedUrl, createNewFileGroupInS3, deleteFileGroupFromS3, deleteFileFromS3, getFileById, getFilesByGroupId } = require("./cloudStorage/storageHandler");
 const { deleteUpload } = require("./database/dbHandler");
 
 // Middleware
@@ -104,19 +113,88 @@ uploads.get("/download-s/:id", ensureAuthentication, fileRequestLimiter, (req, r
     getUploadById(fileId).then(fileInfo => {
         
         // get url
-        getSignedUrl(fileInfo.do_key).then(url => {
-            res.status(200).send(url);
+        getFileById(fileInfo.do_key).then(file => {
+            res.status(200).send(info);
+            
+            // get file as blob
+            axios.get(info.url, {responseType: "blob"}).then(response => {
+                res.set("Content-Type", "application");
+                // must set mimetype and file type
+                res.set("Content-Disposition", `attachment; filename=${fileInfo.system_file_name}.${fileInfo.fileType}`);
+                res.status(200).send(response.data);
+            }, err => {
+                console.error(err);
+            });
+
         }, err => {
             if (err === "No such key") {
                 res.status(404).send({error: err});
             } else {
                 console.error(err);
-                res.status(500).send({error: "Error generating signed URL for that file"});
+                res.status(500).send({error: "Error getting that file"});
             }
         });
 
     }, err => {
         if (err === "Could not find any uploads with that id") {
+            res.status(404).send({error: err});
+        } else {
+            res.status(500).send({error: "Server error"});
+        }
+    });
+});
+
+uploads.get("/download-m/:groupId", ensureAuthentication, fileRequestLimiter, (req, res) => {
+    const groupId = req.params.groupId;
+
+    getUploadGroupById(groupId).then(fileInfos => {
+
+        getFilesByGroupId(groupId).then(files => {
+
+            // zip file
+            const zip = new JSZip();
+
+            files.forEach(file => {
+
+                // get file name
+                let fileName = nameFromKey(file.key, fileInfos);
+                if (fileName === "No provided files matched with the key provided") {
+                    const randomBytes = crypto.randomBytes(12).toString("hex");
+                    
+                    // file was not provided just make fileName random characters
+                    fileName = randomBytes;
+                }
+
+                // get file blob
+                axios.get(file.url, {responseType: "blob"}).then(response => {
+                    zip.file(fileName, response.data);
+                }, err => {
+                    console.error(`Error downloading file ${fileName}: ${err}`);
+                });
+            });
+
+            // once the zip file is complete, send it to the client
+            zip.generateAsync({type: "blob"}).then(zipBlob => {
+
+                res.set("Content-Type", "application/zip");
+                res.set("Content-Disposition", `attachment; filename=files.zip`);
+                res.status(200).send(zipBlob);
+
+            }, err => {
+                console.error(err);
+            });
+
+        }, err => {
+            if (err === "No such key") {
+                res.status(404).send({error: err});
+            } else {
+                console.error(err);
+                res.status(500).send({error: "Error getting that file"});
+            }
+        });
+
+    }, err => {
+        if (err === "No files with that group id") {
             res.status(404).send({error: err});
         } else {
             res.status(500).send({error: "Server error"});
@@ -149,7 +227,33 @@ uploads.post("/create", ensureAuthentication, uploadLimiter, upload.array("files
 
 // single file
 uploads.delete("/s:id", ensureAuthentication, uploadLimiter, (req, res) => {
+    const fileId = req.params.id;
 
+    // get file info from database
+    getFileById(fileId).then(fileInfo => {
+
+        // delete file from cloud storage
+        deleteFileFromS3(fileInfo.uploader_id, fileInfo.upload_group_id, fileId).then(success => {
+            
+            // delete file from database
+            deleteUpload(fileId).then(success => {
+                res.status(204).send(`${fileId} deleted`);
+            }, err => {
+
+                console.error(err);
+                res.status(500).send({error: "Server error"});
+
+            });
+        });
+
+    }, err => {
+        if (err === "Could not find any uploads with that id") {
+            res.status(404).send({error: "No uploads found with that id"});
+        } else {
+            console.error(err);
+            res.status(500).send({error: "Server error"});
+        }
+    });
 });
 
 uploads.delete("/m:groupId", ensureAuthentication, uploadLimiter, (req, res) => {
@@ -168,6 +272,9 @@ uploads.delete("/m:groupId", ensureAuthentication, uploadLimiter, (req, res) => 
                     // nothing
                 }, err => {
 
+                    console.error(err);
+                    res.status(500).send({error: "Server error"});
+
                 });
             });
 
@@ -175,6 +282,8 @@ uploads.delete("/m:groupId", ensureAuthentication, uploadLimiter, (req, res) => 
             deleteFileGroupFromS3(fileGroupInfo[0].uploader_id, groupId, fileIds).then(success => {
                 res.status(204).send(`${fileGroupInfo.length} files deleted`);
             }, err => {
+
+                res.status(500).send({error: "Server error"});
 
             });
 

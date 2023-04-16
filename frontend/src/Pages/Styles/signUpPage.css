@@ -1,0 +1,26 @@
+.signUpPage {
+    height: fit-content;
+    color: #222237;
+    background-color: #f3f5f7;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.signUpPage .logo {
+    width: 12.5%;
+    margin: 2em;
+    min-width: 175px;
+    max-width: 225px;
+}
+
+.signUpPage .header {
+    margin: 0.5em 0 0 0;
+    display: flex;
+}
+
+.signUpPage .header h1 {
+    margin: auto;
+    margin-bottom: 0.25em;
+}
