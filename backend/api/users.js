@@ -24,8 +24,29 @@ const ensureAuthentication = (req, res, next) => {
 };
 
 // Rate limiters
+const passwordChangeLimiter = rateLimit({
+    windowMs: 1000*60*60*24,
+    max: 15,
+    message: "You jut changed your password, please try again later",
+    statusCode: 429,
+    handler: (req, res, next, options) => {
+        res.status(options.statusCode).send(options.message);
+    },
+    standardHeaders: true,
+    store: new MemoryStore()
+});
 
-// forgot password
+const forgotPasswordLimiter = rateLimit({
+    windowMs: 1000*60*60*24,
+    max: 15,
+    message: "You just make a forgot password request, please check your email or try again later",
+    statusCode: 429,
+    handler: (req, res, next, options) => {
+        res.status(options.statusCode).send(options.message);
+    },
+    standardHeaders: true,
+    store: new MemoryStore()
+});
 
 // email limiter
 
@@ -90,12 +111,12 @@ users.delete("/logout", ensureAuthentication, (req, res) => {
 
 // Get all users
 users.get("/", ensureAuthentication, (req, res) => {
-    // Check user tyoe
+    // Check user type
     if (req.session.user.userType === "admin") {
 
         // get users
         getAllUsers().then(users => {
-            res.send({users: users});
+            res.send(users);
         }, err => {
             if (err === "No users found") {
                 res.status(204).send({error: err});
@@ -116,12 +137,33 @@ users.get("/:uuid", ensureAuthentication, (req, res) => {
     // Ensure user is admin or same user
     if (req.session.user.userType === "admin" || req.session.user.uuid === uuid) {
         getUserByUUID(uuid).then(user => {
-            res.send({user: user});
+            res.send(user);
         }, err => {
             console.error(err);
             res.status(500).send({error: "Could not retrieve user"});
         });
-    } else {
+    } else { // return "public profile" if different user
+
+        getUserByUUID(uuid).then(user => {
+            let publicUser = {
+                uuid: user.uuid,
+                username: user.username,
+                firstName: null,
+                lastName: null,
+                isVerified: user.email_verified,
+                dateJoined: user.date_joined,
+                numberOfUploads: user.number_of_uploads,
+                numberOfDownloads: user.number_of_downloads,
+                planType: user.plan_type
+            };
+
+            res.send(publicUser);
+
+        }, err => {
+            console.error(err);
+            res.status(500).send({error: "Could not retrieve user"});
+        });
+
         res.status(403).send({error: "You are not permitted to view this page"});
     }
 });

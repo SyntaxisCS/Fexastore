@@ -4,6 +4,11 @@ const axios = require("axios");
 const AuthContext = React.createContext(null);
 
 export const AuthProvider = ({children}) => {
+    // URLS
+    const frontendURL = process.env.frontendURL;
+    const backendURL = process.env.backendURL;
+
+    // states
     const [loading, setLoading] = React.useState(true);
     const [user, setUser] = React.useState(null);
 
@@ -12,7 +17,7 @@ export const AuthProvider = ({children}) => {
     };
 
     const logout = () => {
-        axios.delete("", {
+        axios.delete(`${backendURL}/users/logout`, {
             headers: {
                 "Content-Type": "application/json"
             },
@@ -25,7 +30,7 @@ export const AuthProvider = ({children}) => {
     };
 
     React.useEffect(() => {
-        axios.get("", {
+        axios.get(`${backendURL}/users/authenticate`, {
             headers: {
                 "Content-Type": "application/json"
             },

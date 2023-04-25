@@ -35,7 +35,7 @@ const passport = require("passport");
 const uploads = express.Router();
 
 // Database handlers
-const { createUpload, getUploadById, getUploadGroupById } = require("./database/dbHandler");
+const { createUpload, getUploadById, getUploadGroupById, getUploadsByUserId } = require("./database/dbHandler");
 
 // Helpers
 const { getSignedUrl, createNewFileGroupInS3, deleteFileGroupFromS3, deleteFileFromS3, getFileById, getFilesByGroupId } = require("./cloudStorage/storageHandler");
@@ -100,6 +100,21 @@ uploads.get("/m:groupId", fileRequestLimiter, (req, res) => {
         res.status(200).send(groupInfo);
     }, err => {
         if (err === "No files with that group id") {
+            res.status(404).send({error: err});
+        } else {
+            res.status(500).send({error: "Server error"});
+        }
+    });
+});
+
+// All files for user
+uploads.get("/u:userId", fileRequestLimiter, (req, res) => {
+    const userId = req.params.userId;
+
+    getUploadsByUserId(userId).then(uploadInfo => {
+        res.status(200).send(uploadInfo);
+    }, err => {
+        if (err === "No files with that uploader id") {
             res.status(404).send({error: err});
         } else {
             res.status(500).send({error: "Server error"});

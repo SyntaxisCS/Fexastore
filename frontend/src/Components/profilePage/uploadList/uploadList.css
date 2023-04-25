@@ -1,0 +1,28 @@
+.uploadList .uploadBar {
+    width: 83%;
+    margin: auto;
+    display: flex;
+    margin-top: 2em;
+    margin-bottom: -1em;
+    flex-direction: row;
+}
+
+.uploadList .uploadBar hr {
+    width: 100%;
+    height: 0.1px;
+    color: #b9babe;
+    border: 1px solid #b9babe;
+}
+
+.uploadList .uploadBar span {
+    color: #b9babe;
+    min-width: 70px;
+    max-height: 10px;
+    margin-left: 1em;
+}
+
+.uploadList .emptyProfile {
+    width: 100%;
+    margin-top: 2em;
+    text-align: center;
+}

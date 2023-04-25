@@ -607,12 +607,35 @@ const getUploadGroupById = async (id) => {
         };
 
         DB.query(query).then(response => {
-            if (response.rows > 0) {
+            if (response.rows.length > 0) {
 
                 resolve(response.rows);
 
             } else {
                 reject("No files with that group id");
+            }
+
+        }, err => {
+            console.error(err);
+            reject(err);
+        });
+    });
+};
+
+const getUploadsByUserId = async (userId) => {
+    return new Promise((resolve, reject) => {
+        let query = {
+            name: "getUploadsByUserId",
+            text: "SELECT * FROM uploads WHERE uploader_id = $1",
+            values: [id]
+        };
+
+        DB.query(query).then(response => {
+
+            if (response.rows.length > 0) {
+                resolve(response.rows);
+            } else {
+                reject("No files with that uploader id");
             }
 
         }, err => {
@@ -1041,6 +1064,7 @@ module.exports = {
     // Uploads
     getUploadById,
     getUploadGroupById,
+    getUploadsByUserId,
     createUpload,
     deleteUpload,
     deleteUploadGroup,

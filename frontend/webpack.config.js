@@ -17,7 +17,9 @@ module.exports = {
             template: "./src/index.html",
             favicon: "./src/Assets/Images/favicon.ico"
         }),
-        new dotenv()
+        new dotenv({
+            path: path.resolve(__dirname, "src", ".env")
+        })
     ],
     resolve: {
         modules: [__dirname, "src", "node_modules"],

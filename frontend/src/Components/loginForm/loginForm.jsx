@@ -108,12 +108,12 @@ export const LoginForm = () => {
 
             handleLogin(response.data);
         }, err => {
-            let errReponse = err.response;
+            let errResponse = err.response;
 
-            if (errReponse.status === 401) {
+            if (errResponse.status === 401) {
                 // Password is incorrect
                 setFormError("Password is incorrect");
-            } else if (errReponse.status === 404) {
+            } else if (errResponse.status === 404) {
                 // User does not exist
                 setFormError("That account does not exist");
             } else {

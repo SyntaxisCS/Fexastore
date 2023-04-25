@@ -97,6 +97,13 @@
     background-color: #f5f5f5;
 }
 
+.topBar .dropdownContent .logOut:hover {
+    color: #c42b1c;
+    border-radius: 5px;
+    outline: 3px dotted #c42b1c;
+    background-color: none;
+}
+
 /* Responsiveness */
 @media only screen and (max-width: 600px) {
     .topBar .logo {

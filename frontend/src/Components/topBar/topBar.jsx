@@ -1,21 +1,36 @@
 const React = require("react");
 
 // Components
-const {NavLink} = require("react-router-dom");
+const {NavLink, useNavigate} = require("react-router-dom");
 const {useTheme} = require("../../Utils/Themes/theme");
+const {useAuth} = require("../../Utils/Authentication/auth");
 import fexaStoreLight from "../../Assets/Images/fexastoreHorizontalLight.svg";
 import fexaStoreDark from "../../Assets/Images/fexastoreHorizontalDark.svg";
 import defaultAvatar from "../../Assets/Images/default-avatar.png";
 import "./topBar.css";
 
 export const TopBar = () => {
+    // URLS
+    const frontendURL = process.env.frontendURL;
+    const backendURL = process.env.backendURL;
+
+    // Utils
+    const auth = useAuth();
+    const navigate = useNavigate();
     const theme = useTheme().theme;
+
+    // States
     const userAvatar = null;
     const username = null;
     const [showDropdown, setShowDropdown] = React.useState(false);
 
     const toggleDropdown = () => {
         setShowDropdown(!showDropdown);
+    };
+
+    const handleLogOut = () => {
+        auth.logout();
+        navigate("/login");
     };
 
     return (
@@ -33,8 +48,9 @@ export const TopBar = () => {
                     </div>
                     {showDropdown && (
                         <div className="dropdownContent">
-                        <NavLink to="/profile" className={({isActive}) => (isActive ? "active" : "none")}><i className="bx bx-user"/> Profile</NavLink>
-                        <NavLink to="/settings"className={({isActive}) => (isActive ? "active" : "none")}><i className="bx bx-cog"/> Settings</NavLink>
+                            <NavLink to="/profile" className={({isActive}) => (isActive ? "active" : "none")}><i className="bx bx-user"/> Profile</NavLink>
+                            <NavLink to="/settings"className={({isActive}) => (isActive ? "active" : "none")}><i className="bx bx-cog"/> Settings</NavLink>
+                            <a onClick={handleLogOut} className="logOut"><i className="bx bx-log-out"/> Log Out</a>
                         </div>
                     )}
                 </div>

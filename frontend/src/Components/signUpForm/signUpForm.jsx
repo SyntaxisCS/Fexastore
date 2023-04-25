@@ -78,9 +78,11 @@ export const SignUpForm = () => {
         navigate("/login");
     };
 
-    const apiCall = (x) => {
+    const apiCall = (username, email, password) => {
         let callBody = {
-
+            email: email,
+            username: username,
+            password: password
         };
 
         axios.post(backendURL + "/users/create", callBody, {

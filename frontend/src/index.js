@@ -8,6 +8,7 @@ import "./index.css";
 // Pages
 import { HomePage } from "./Pages/homePage";
 import { LoginPage } from "./Pages/loginPage";
+import { ProfilePage } from "./Pages/profilePage";
 import { SignUpPage } from "./Pages/signUpPage";
 import { UploadPage } from "./Pages/uploadPage";
 import { AuthProvider } from "./Utils/Authentication/auth";
@@ -21,6 +22,8 @@ import { ThemeProvider } from "./Utils/Themes/theme";
 // import {FourOhFourErrorPage} from "./Pages/404";
 // import {FiveHundredErrorPage} from "./Pages/500";
 
+// /profile/username
+
 ReactDOM.render((
     <AuthProvider>
         <ThemeProvider>
@@ -28,6 +31,7 @@ ReactDOM.render((
                 <Routes>
                     <Route path="/" element={<HomePage/>}/>
                     <Route path="/upload" element={<UploadPage/>}/>
+                    <Route path="/profile" element={<ProfilePage/>}/>
 
                     {/*Authentication*/}
                     <Route path="/login" element={<LoginPage/>}/>

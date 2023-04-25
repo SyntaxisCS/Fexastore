@@ -1,0 +1,125 @@
+.uploadCard {
+    width: 80%;
+    margin: auto;
+    display: flex;
+    padding: 30px;
+    margin-top: 2em;
+    max-height: 115px;
+    border-radius: 5px;
+    position: relative;
+    background-color: #ffffff;
+}
+
+.uploadCard img {
+    margin-right: 2em;
+    max-height: 7.5em;
+    border-radius: 5px;
+}
+
+.uploadCard .uploadInfo .uploadTitle {
+    font-size: 22px;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.uploadCard .uploadInfo .uploadName {
+    color: #b9babe;
+    margin-top: -0.5em;
+}
+
+.uploadCard .uploadInfo .tagWrapper {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+}
+
+.uploadCard .uploadInfo .useCase h3,
+.uploadCard .uploadInfo .tags h3 {
+    font-size: 14px;
+    font-weight: 500;
+    margin-right: 10px;
+    margin-bottom: -1em;
+}
+
+.uploadCard .uploadInfo .tags {
+    margin-left: 1em;
+}
+
+.uploadCard .uploadInfo .useCase .tagContainer,
+.uploadCard .uploadInfo .tags .tagContainer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.uploadCard .uploadInfo .useCase .tagContainer p,
+.uploadCard .uploadInfo .tags .tagContainer p {
+    background-color: #f2f2f2;
+    border-radius: 5px;
+    color: #757575;
+    font-size: 14px;
+    padding: 5px 10px;
+    margin-right: 10px;
+    margin-bottom: 0px;
+}
+
+.uploadCard .uploadDate {
+    top: 5px;
+    right: 30px;
+    color: #b9babe;
+    font-size: 20px;
+    position: absolute;
+}
+
+.uploadCard .fileSize {
+    top: 100px;
+    right: 30px;
+    color: #b9babe;
+    font-size: 20px;
+    position: absolute;
+}
+
+.uploadCard .downloadButton {
+    position: absolute;
+    bottom: 10px;
+    right: 30px;
+    width: 10%;
+    border: none;
+    margin: 3px 0;
+    color: #ffffff;
+    font-size: 17px;
+    margin-top: 1em;
+    cursor: pointer;
+    margin-bottom: 0;
+    font-weight: 500;
+    min-width: 120px;
+    padding: 10px 15px;
+    border-radius: 5px;
+    letter-spacing: 2px;
+    background: linear-gradient(to right, #5d02fb 0%, #ec02f7 140%);
+}
+
+.uploadCard .downloadButton:hover {
+    background: #5d02fb;
+}
+
+
+/* Tag Colors */
+.uploadCard .uploadInfo .useCase .tagContainer p.purple,
+.uploadCard .uploadInfo .tags .tagContainer p.purple {
+    background-color: #5d02fb ;
+    color: #ffffff;
+}
+
+.uploadCard .uploadInfo .useCase .tagContainer p.pink,
+.uploadCard .uploadInfo .tags .tagContainer p.pink {
+    background-color: #ec02f7;
+    color: #ffffff;
+}
+
+.uploadCard .uploadInfo .useCase .tagContainer p.gradient,
+.uploadCard .uploadInfo .tags .tagContainer p.gradient {
+    background: linear-gradient(to right, #5d02fb 0%, #ec02f7 140%);
+    color: #ffffff;
+}
