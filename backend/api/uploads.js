@@ -14,14 +14,7 @@ const axios = require("axios");
 // Multer
 const multer = require("multer");
 const upload = multer({
-    storage: multer.diskStorage({
-        destination: (req, file, cb) => {
-            cb(null, `${__dirname}/temp`);
-        },
-        filename: (req, file, cb) => {
-            cb(null, `${new Date().toISOString()}-${file.originalname}`);
-        }
-    }),
+    storage: multer.memoryStorage(),
     limits: {
         fileSize: 1024 * 1024 * 1024, // 1 Gibibyte
         files: 10
@@ -35,11 +28,10 @@ const passport = require("passport");
 const uploads = express.Router();
 
 // Database handlers
-const { createUpload, getUploadById, getUploadGroupById, getUploadsByUserId } = require("./database/dbHandler");
+const { createUpload, getUploadById, getUploadGroupById, getUploadsByUserId, deleteUpload } = require("./database/dbHandler");
 
 // Helpers
 const { getSignedUrl, createNewFileGroupInS3, deleteFileGroupFromS3, deleteFileFromS3, getFileById, getFilesByGroupId } = require("./cloudStorage/storageHandler");
-const { deleteUpload } = require("./database/dbHandler");
 
 // Middleware
 const ensureAuthentication = (req, res, next) => {
@@ -219,13 +211,20 @@ uploads.get("/download-m/:groupId", ensureAuthentication, fileRequestLimiter, (r
 
 uploads.post("/create", ensureAuthentication, uploadLimiter, upload.array("files"), (req, res) => {
     
-    // Upload to DigitalOcean spaces
-    createNewFileGroupInS3(req.files, req.session.uuid).then(fileDbObjects => {
+    let upload = req.body;
 
+    // Upload to DigitalOcean spaces
+    createNewFileGroupInS3(req.files, req.session.user.uuid).then(fileDbObjects => {
         // Add references to database
         fileDbObjects.forEach(fileObject => {
+            fileObject.title = upload.title;
+            fileObject.description = upload.description;
+            fileObject.tags = upload.tags === "" ? null : upload.tags;
+            fileObject.useCase = upload.useCase === "" ? null : upload.useCase;
+
             createUpload(fileObject).then(response => {
                 // do nothing
+                console.info(`File added to database`);
             }, err => {
                 console.error(err);
                 res.status(500).send({error: "Failed to add upload to database"});

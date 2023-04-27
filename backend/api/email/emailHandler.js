@@ -3,8 +3,8 @@ const fs = require("fs");
 // dotenv
 
 // helper functions
-const { generateToken } = require("../../Utils/keyHandler");
-const { getUserByEmail, addVerificationToken, addEmailChangeToken } = require("../../../../BrainDump/backend/api/database/dbHandler");
+const { generateToken } = require("../../Utils/Helpers/keyHandler");
+const { getUserByEmail, addVerificationToken } = require("../database/dbHandler");
 
 // URLs
 const frontendURL = process.env.frontendURL;
@@ -12,9 +12,8 @@ const backendURL = process.env.backendURL;
 
 const emailSender = process.env.mailUser;
 let transporter = nodeMailer.createTransport({
-    host: "smtp.zoho.com",
-    secure: true,
-    port: 465,
+    host: "smtp.ethereal.email",
+    port: 587,
     auth: {
         user: emailSender,
         pass: process.env.mailPass
@@ -35,7 +34,7 @@ let transporter = nodeMailer.createTransport({
 */
 
 // Account Creation Notification
-const sendAccountCreationNotification = async (recipient) => {
+const sendAccountCreationNotification = async (recipient, userInfo) => {
     return new Promise((resolve, reject) => {
         if (recipient) {
             
@@ -43,8 +42,8 @@ const sendAccountCreationNotification = async (recipient) => {
             const mailOptions = {
                 from: emailSender,
                 to: recipient,
-                subject: "Thanks for joining _NAME_",
-                html: `<html> <body style="font-family: Arial, sans-serif; font-size: 16px; color: #333333; background-color: #f2f2f2;"> <table cellpadding="0" cellspacing="0" border="0" width="100%"> <tr> <td align="center"> <table cellpadding="0" cellspacing="0" border="0" width="600"> <tr> <td align="center" style="background-color: #007bff; padding: 30px 0;"> <h1 style="font-size: 24px; font-weight: bold; margin-top: 0; margin-bottom: 20px; color: #ffffff;">Account Creation Notification</h1> </td></tr><tr> <td align="left" style="background-color: #ffffff; padding: 30px;"> <p style="margin-bottom: 20px;">Dear [insert username here],</p><p style="margin-bottom: 20px;">Thank you for creating an account with [insert app name here]! Your account has been successfully created.</p><p>Please check your email for a separate email with instructions on how to verify your account.</p><p style="margin-top: 20px;">Best regards,</p><p>[insert app name here] Team</p></td></tr><tr> <td align="center" style="background-color: #007bff; padding: 30px 0;"> <p style="color: #ffffff; margin: 0;">&copy; 2023 [insert app name here]. All rights reserved.</p></td></tr></table> </td></tr></table> </body></html>`
+                subject: `Thanks for joining Fexastore`,
+                html: `<html> <body style="font-family: Arial, sans-serif; font-size: 16px; color: #333333; background-color: #f2f2f2;"> <table cellpadding="0" cellspacing="0" border="0" width="100%"> <tr> <td align="center"> <table cellpadding="0" cellspacing="0" border="0" width="600"> <tr> <td align="center" style="background: linear-gradient(to right, #5d02fb 0%, #EC02F7 140%); padding: 30px 0;"> <h1 style="font-size: 24px; font-weight: bold; margin-top: 0; margin-bottom: 20px; color: #ffffff;">Account Creation Notification</h1> </td></tr><tr> <td align="left" style="background-color: #ffffff; padding: 30px;"> <p style="margin-bottom: 20px;">Dear ${userInfo ? userInfo.username : "_username_"},</p><p style="margin-bottom: 20px;">Thank you for creating an account with Fexastore! Your account has been successfully created.</p><p>Please check your email for a separate email with instructions on how to verify your account.</p><p style="margin-top: 20px;">Best regards,</p><p>Fexastore Team</p></td></tr><tr> <td align="center" style="background: linear-gradient(to right, #5d02fb 0%, #EC02F7 140%); padding: 30px 0;"> <p style="color: #ffffff; margin: 0;">&copy; 2023 Fexastore. All rights reserved.</p></td></tr></table> </td></tr></table> </body></html>`
             };
 
             // Send Email
@@ -70,7 +69,7 @@ const sendPasswordChangeNotification = async (recipient) => {
             const mailOptions = {
                 from: emailSender,
                 to: recipient,
-                subject: "Your _NAME_ password has been changed!",
+                subject: "Your Fexastore password has been changed!",
                 html: ``
             };
 
@@ -98,7 +97,7 @@ const sendEmailChangeNotification = async (oldRecipient, newRecipient) => {
                 from: emailSender,
                 to: newRecipient, // to new email
                 cc: oldRecipient, // send to old email
-                subject: "Your _NAME_ email has been successfully changed!",
+                subject: "Your Fexastore email has been successfully changed!",
                 html: ``
             };
 
@@ -127,7 +126,7 @@ const sendForgotPasswordLink = async (recipient, url) => {
             const mailOptions = {
                 from: emailSender,
                 to: recipient,
-                subject: "Your _NAME_ password reset link has arrived!",
+                subject: "Your Fexastore password reset link has arrived!",
                 html: ``
             };
 
@@ -145,7 +144,7 @@ const sendForgotPasswordLink = async (recipient, url) => {
 };
 
 // Send Email Verification Link
-const sendEmailVerificationLink = async (recipient) => {
+const sendEmailVerificationLink = async (recipient, userInfo) => {
     return new Promise((resolve, reject) => {        
         if (recipient) {
             let verificationToken = generateToken();
@@ -157,8 +156,8 @@ const sendEmailVerificationLink = async (recipient) => {
                     const mailOptions = {
                         from: emailSender,
                         to: recipient,
-                        subject: "",
-                        html: ``
+                        subject: "Your Fexastore Email Verification Link has arrived",
+                        html: `<html> <body style="font-family: Arial, sans-serif; font-size: 16px; color: #333333; background-color: #f2f2f2;"> <table cellpadding="0" cellspacing="0" border="0" width="100%"> <tr> <td align="center"> <table cellpadding="0" cellspacing="0" border="0" width="600"> <tr> <td align="center" style="background: linear-gradient(to right, #5d02fb 0%, #EC02F7 140%); padding: 30px 0;"> <h1 style="font-size: 24px; font-weight: bold; margin-top: 0; margin-bottom: 20px; color: #ffffff;">Email Verification</h1> </td></tr><tr> <td align="left" style="background-color: #ffffff; padding: 30px;"> <p style="margin-bottom: 20px;">Dear ${userInfo.username ? userInfo.username : "_username_"},</p><p style="margin-bottom: 20px;">Thank you for creating an account with Fexastore! Before you can start using your account, you need to verify your email address by clicking the button below:</p><table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 20px;"> <tr> <td align="center" bgcolor="#5d02fb" style="border-radius: 5px;"> <a href="${url}" target="_blank" style="display: inline-block; padding: 12px 24px; color: #ffffff; text-decoration: none; font-weight: bold;">Verify Email Address</a> </td></tr></table> <p>If you did not create an account with Fexastore, please ignore this email.</p><p style="margin-top: 20px;">Best regards,</p><p>Fexastore Team</p></td></tr><tr> <td align="center" style="background: linear-gradient(to right, #5d02fb 0%, #EC02F7 140%); padding: 30px 0;"> <p style="color: #ffffff; margin: 0;">&copy; 2023 Fexastore. All rights reserved.</p></td></tr></table> </td></tr></table> </body></html>`
                     };
 
                     // Send Email
@@ -198,7 +197,7 @@ const sendEmailChangeLink = async (recipient) => {
                     const mailOptions = {
                         from: emailSender,
                         to: recipient,
-                        subject: "_NAME_ email change request",
+                        subject: "Fexastore email change request",
                         html: ``
                     };
 
@@ -240,4 +239,5 @@ module.exports = {
     sendEmailChangeNotification,
     sendForgotPasswordLink,
     sendEmailChangeLink,
+    sendEmailVerificationLink
 };

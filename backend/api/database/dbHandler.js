@@ -8,8 +8,9 @@ const moment = require("moment");
 
 // Helper functions
 const aes256 = require("aes256");
-const {generateNanoID, deriveKey, encryptKey, decryptKey} = require("../../Utils/keyHandler");
-const {hasNotExpired} = require("../../Utils/timeHandler");
+const {generateNanoID, deriveKey, encryptKey, decryptKey} = require("../../Utils/Helpers/keyHandler");
+const {hasNotExpired} = require("../../Utils/Helpers/timeHandler");
+const { uploadDupeChecker } = require("../../Utils/Helpers/uploadDupeChecker");
 
 // Dotenv
 const path = require("path");
@@ -27,7 +28,6 @@ const DB = new Client({
     user: process.env.pgUser,
     password: process.env.pgPassword,
     database: process.env.pgDB,
-    log: console.log
 });
 
 DB.connect();
@@ -88,12 +88,38 @@ const getUserByEmail = async (email) => {
     });
 };
 
+const getUserByUsername = async (username) => {
+    return new Promise((resolve, reject) => {
+        let query = {
+            name: "getUserByUsername",
+            text: "SELECT * FROM users WHERE username = $1",
+            values: [username]
+        };
+
+        DB.query(query).then(response => {
+            if (response.rows[0]) {
+                resolve(response.rows[0]);
+            } else {
+                reject({
+                    status: 404,
+                    message: "No users found with that username"
+                });
+            }
+        }, err => {
+            reject({
+                status: 500,
+                message: "Failed to get user by username",
+                details: err.message
+            });
+        });
+    });
+};
+
 const getAllUsers = async () => {
     return new Promise((resolve, reject) => {
         let query = {
             name: "getAllUsers",
-            text: "SELECT * FROM users",
-            values: []
+            text: "SELECT * FROM users"
         };
 
         DB.query(query).then(response => {
@@ -194,61 +220,62 @@ const createUser = async (newUser) => {
 
                     // Derive key for encryption
                     deriveKey(newUser.uuid, newUser.password, salt).then(derivedKey => {
-
                         // Encrypt key
                         let encryptedKey = encryptKey(derivedKey);
 
                         // Add key to database
-                        // createKey
+                        createKey(newUser.uuid, encryptedKey).then(response => {
+                            console.info(response);
+                            // Normalize Email
+                            let options = {
+                                gmail_lowercase: true,
+                                gmail_convert_googlemaildotcom: true,
+                                outlookdotcom_lowercase: true,
+                                yahoo_lowercase: true,
+                                icloud_lowercase: true,
+                                gmail_remove_subaddress: true,
+                                outlookdotcom_remove_subaddress: true,
+                                yahoo_remove_subaddress: true,
+                                icloud_remove_subaddress: true
+                            };
+                            const normalizedEmail = validator.normalizeEmail(newUser.email, options);
 
-                    }, err => {
-                        console.error(err);
-                    });
+                            isUsernameUnique(newUser.username).then(success => {
 
+                                // DB query
+                                let currentTimestamp = new Date();
 
-                    // Normalize Email
-                    let options = {
-                        gmail_lowercase: true,
-                        gmail_convert_googlemaildotcom: true,
-                        outlookdotcom_lowercase: true,
-                        yahoo_lowercase: true,
-                        icloud_lowercase: true,
-                        gmail_remove_subaddress: true,
-                        outlookdotcom_remove_subaddress: true,
-                        yahoo_remove_subaddress: true,
-                        icloud_remove_subaddress: true
-                    };
-                    const normalizedEmail = validator.normalizeEmail(newUser.email, options);
+                                const columns = ['uuid', 'first_name', 'last_name', 'username', 'email', 'email_verified', 'email_verified_date', 'number_of_email_changes', 'last_email_change', 'password', 'number_of_password_changes', 'last_password_change', 'date_joined', 'number_of_uploads', 'last_upload_date', 'number_of_downloads', 'last_download_date', 'user_type', 'plan_type', 'trial_used', 'trial_expiration_date', 'months_paid', 'number_of_reported_uploads', 'last_report_date', 'avatar_url'];
+                                const values = [newUser.uuid, newUser.firstName, newUser.lastName, newUser.username, normalizedEmail, false, null, 0, null, hashedPassword, 0, null, currentTimestamp, 0, null, 0, null, "user", "free", false, null, 0, 0, null, newUser.avatarUrl];
 
-                    isUsernameUnique(newUser.username).then(success => {
+                                let query = {
+                                    name: 'createUser',
+                                    text: `INSERT INTO users (${columns.join(', ')}) VALUES (${values.map((_, i) => '$' + (i + 1)).join(', ')})`,
+                                    values
+                                };
 
-                        // DB query
-                        let currentTimestamp = new Date();
+                                DB.query(query).then(response => {
 
-                        const columns = ['uuid', 'first_name', 'last_name', 'username', 'email', 'email_verified', 'email_verified_date', 'number_of_email_change', 'last_email_change', 'password', 'number_of_password_changes', 'last_password_change', 'data_joined', 'number_of_uploads', 'last_upload_date', 'number_of_downloads', 'last_download_date', 'user_type', 'plan_type', 'trial_used', 'trial_expiration_date', 'months_paid', 'number_of_reported_uploads', 'last_report_date'];
-                        const values = [newUser.uuid, newUser.firstName, newUser.lastName, newUser.username, normalizedEmail, false, null, 0, null, hashedPassword, 0, null, currentTimestamp, 0, null, 0, null, "user", "free", false, null, 0, 0, null];
+                                    if (response.rowCount > 0) {
+                                        // success
+                                        resolve(`User ${newUser.uuid} created at ${new Date()}`);
+                                    } else {
+                                        reject(`Could not create user \n ${response}`);
+                                    }
 
-                        let query = {
-                            name: 'createUser',
-                            text: `INSERT INTO users (${columns.join(', ')}) VALUES (${values.map((_, i) => '$' + (i + 1)).join(', ')})`,
-                            values
-                        };
+                                }, err => {
+                                    reject(err);
+                                });
 
-                        DB.query(query).then(response => {
-
-                            if (response.rowCount > 0) {
-                                // success
-                                resolve(`User ${user.uuid} created at ${new Date()}`);
-                            } else {
-                                reject(`Could not create user \n ${response}`);
-                            }
-
+                            }, err => {
+                                reject(err);
+                            });
                         }, err => {
                             reject(err);
                         });
 
                     }, err => {
-                        reject(err);
+                        console.error(err);
                     });
 
                 }, err => {
@@ -396,7 +423,12 @@ const verifyEmail = async (email) => {
                 };
 
                 DB.query(query).then(response => {
-                    resolve(`${user.uuid} has verified the email ${email}`);
+                    deleteVerificationToken(user.uuid).then(response => {
+                        resolve(`${user.uuid} has verified the email ${email}`);
+                    }, err => {
+                        console.error(err);
+                        reject("Could not verify email");
+                    });
                 }, err => {
                     console.error(err);
                     reject("Could not verify email");
@@ -627,13 +659,13 @@ const getUploadsByUserId = async (userId) => {
         let query = {
             name: "getUploadsByUserId",
             text: "SELECT * FROM uploads WHERE uploader_id = $1",
-            values: [id]
+            values: [userId]
         };
 
         DB.query(query).then(response => {
 
             if (response.rows.length > 0) {
-                resolve(response.rows);
+                resolve(uploadDupeChecker(response.rows));
             } else {
                 reject("No files with that uploader id");
             }
@@ -650,10 +682,13 @@ const createUpload = async (x) => {
         // time stamp = updated_date = creation_date on creation
         let timestamp = new Date();
 
+        const columns = ['id', 'uploader_id', 'group_id', 'upload_group_id', 'num_of_files_in_group', 'title', 'description','tags', 'use_case', 'do_key', 'do_bucket', 'creation_date', 'updated_date', 'original_file_name', 'system_file_name', 'file_size', 'file_type'];
+        const values = [x.id, x.uploaderId, x.groupId, x.uploadGroupId, x.numOfFiles, x.title, x.description, x.tags, x.useCase, x.doKey, x.doBucket, timestamp, timestamp, x.originalFileName, x.systemFileName, x.fileSize, x.fileType];
+
         let query = {
             name: "createUpload",
-            text: "INSERT INTO uploads (id, uploader_id, group_id, upload_group_id, num_of_files_in_group, do_key, do_bucket, creation_date, updated_date, original_file_name, system_file_name, file_size, file_type) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)",
-            values: [x.id, x.uploaderId, x.groupId, x.uploadGroupId, x.numOfFiles, x.doKey, x.doBucket, timestamp, timestamp, x.originalFileName, x.systemFileName, x.fileSize, x.fileType]
+            text: `INSERT INTO uploads (${columns.join(', ')}) VALUES (${values.map((_, i) => '$' + (i + 1)).join(', ')})`,
+            values
         };        
 
         DB.query(query).then(response => {
@@ -969,6 +1004,28 @@ const addVerificationToken = async (userId, token) => {
             });
         }, err => {{
             // if no then create
+            // create token
+            let expire = moment().add(10, "minutes").toISOString();
+
+            const url = `${frontendURL}/verify/${token}`;
+
+            let query = {
+                name: "addVerificationToken",
+                text: "INSERT INTO verification_tokens (user_id, token, expire) VALUES ($1,$2,$3)",
+                values: [userId, token, expire]
+            };
+
+            DB.query(query).then(response => {
+                if (response.rowCount > 0) {
+                    // success
+                    resolve(url);
+                } else {
+                    reject("Could not add token");
+                }
+            }, err => {
+                console.error(err);
+                reject(err);
+            });
         }});
     });
 };
@@ -1045,6 +1102,7 @@ module.exports = {
     // Users
     getUserByUUID,
     getUserByEmail,
+    getUserByUsername,
     getAllUsers,
     isUsernameUnique,
     checkUserExistance,

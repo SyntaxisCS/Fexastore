@@ -4,6 +4,7 @@ const axios = require("axios");
 // Components
 import { useTheme } from "../../../Utils/Themes/theme";
 import { UploadCard } from "../uploadCard/uploadCard";
+import { useAuth } from "../../../Utils/Authentication/auth";
 import "./uploadList.css";
 
 export const UploadList = (props) => {
@@ -13,24 +14,41 @@ export const UploadList = (props) => {
 
     // Utils
     const theme = useTheme().theme;
+    const auth = useAuth();
 
     // States
     const [uploads, setUploads] = React.useState([]);
 
     const getUploads = (userId) => {
-        console.log(backendURL);
 
         if (!userId) {
             return null;
         }
 
-        axios.get(`${backendURL}/u${userId}`, {
+        axios.get(`${backendURL}/uploads/u${userId}`, {
             headers: {
                 "Content-Type": "application/json"
             },
             withCredentials: true
         }).then(response => {
-            setUploads(response.data);
+            let results = [];
+
+            response.data.forEach(upload => {
+                let newUpload = {...upload};
+
+                // convert tags and use case from strings to arrays
+                if (newUpload.tags) {
+                    newUpload.tags = upload.tags.split(",");
+                }
+
+                if (newUpload.use_case) {
+                    newUpload.use_case = upload.use_case.split(",");
+                }
+
+                results.push(newUpload);
+            });
+
+            setUploads(results);
         }, err => {
             let errResponse = err.response;
 
@@ -45,7 +63,7 @@ export const UploadList = (props) => {
     };
 
     React.useEffect(() => {
-        getUploads(props.userId);
+        getUploads(props.user.uuid);
     }, []);
 
     return (
@@ -56,7 +74,7 @@ export const UploadList = (props) => {
             </div>
 
             {uploads.length > 0 ? uploads.map((file, index) => {
-                <UploadCard key={index} title={file.title} uploader={file.uploader_id} useCase={[]} tags={[]} date={file.updated_date} fileSize={file.file_size}/>
+                return (<UploadCard key={index} title={file.title} uploader={props.user.username} useCase={file.use_case} tags={file.tags} date={file.updated_date} fileSize={file.file_size} owner={props.user.uuid === auth.user.uuid ? true : false}/>)
             }) : <h3 className="emptyProfile">No uploads yet! Stingy stingy!</h3>}
         </div>
     );

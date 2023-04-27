@@ -16,7 +16,9 @@
 }
 
 .profileHeader .leftPane .userAvatar {
-    max-width: 125px;
+    width: 125px;
+    height: 125px;
+    border-radius: 50%;
 }
 
 .profileHeader .leftPane .userInfo {
@@ -26,4 +28,12 @@
 .profileHeader .leftPane .userInfo .userName {
     color: #b9babe;
     margin-top: -1em;
+}
+
+.profileHeader .leftPane .userInfo .userName.show {
+    display: "block";
+}
+
+.profileHeader .leftPane .userInfo .userName.hidden {
+    display: "none";
 }

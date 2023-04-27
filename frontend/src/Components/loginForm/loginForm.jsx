@@ -80,11 +80,7 @@ export const LoginForm = () => {
                return null; 
             }
 
-            // Escape and Encode Email and password
-            const encodedEmail = encodeURIComponent(trimmedEmail);
-            const encodedPassword = encodeURIComponent(trimmedPassword);
-
-            apiCall(encodedEmail, encodedPassword);
+            apiCall(trimmedEmail, trimmedPassword);
 
         } else {
             setFormError("Please fill out all of the required fields");
@@ -146,9 +142,9 @@ export const LoginForm = () => {
 
             <div className={`alternativeLogin ${theme}`}>
                 <hr/>
-                <button><i class='bx bxl-github'/>Login with Github</button>
-                <button><i class='bx bxl-google'/>Login with Google</button>
-                <button><i class='bx bxl-github'/>Login with SimpleLogin</button>
+                <button><i className='bx bxl-github'/>Login with Github</button>
+                <button><i className='bx bxl-google'/>Login with Google</button>
+                <button><i className='bx bxl-github'/>Login with SimpleLogin</button>
             </div>
 
             <div className={`signUpText ${theme}`}>

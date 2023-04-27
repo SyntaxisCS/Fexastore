@@ -5,15 +5,15 @@ const formatDate = (dateString) => {
         return "m/d/y";
     }
 
-    const date = DateTime.fromFormat(dateString, "yyyy-MM-dd HH:mm:ss.SSS");
+    const date = DateTime.fromISO(dateString);
     const difference = DateTime.local().diff(date, ["days"]).toObject();
 
     if (difference.days < 3) {
-        return `${Math.ceil(difference.days)} day${difference.days > 1 ? "s" : ""} ago`;
+        const relative = date.toRelative();
+        return relative;
     } else {
         return date.toFormat("M/d/yy");
     }
 };
-
 
 module.exports = {formatDate};

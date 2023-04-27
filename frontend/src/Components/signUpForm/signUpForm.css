@@ -124,3 +124,51 @@
     cursor: pointer;
     border-bottom: 2px solid #5d02fb;
 }
+
+.avatarUpload {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    border: 1px solid #222237;
+    overflow: hidden;
+    cursor: pointer;
+    background-color: rgba(255, 255, 255, 0.2);
+    z-index: 1;
+  }
+  
+  .avatarUpload img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .avatarUpload .avatarPlaceholder {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    color: #222237;
+  }
+  
+  .avatarUpload .avatarPlaceholder i {
+    font-size: 36px;
+    margin-bottom: 8px;
+  }
+  
+  .avatarUpload .avatarPlaceholder span {
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .avatarUpload:hover {
+    opacity: 0.8;
+  }
+  
+  

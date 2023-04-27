@@ -128,8 +128,8 @@ export const UploadForm = () => {
                 <label htmlFor="title">Title</label>
                 <input type="text" name="title" onChange={handleInputChange}/>
 
-                <label htmlFor="desc">Description</label>
-                <input type="text" name="desc"/>
+                <label htmlFor="description">Description</label>
+                <input type="text" name="description"/>
 
                 <label htmlFor="useCase">Use Case</label>
                 <input type="text" name="useCase"/>

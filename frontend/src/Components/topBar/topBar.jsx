@@ -1,4 +1,5 @@
 const React = require("react");
+const axios = require("axios");
 
 // Components
 const {NavLink, useNavigate} = require("react-router-dom");
@@ -20,7 +21,7 @@ export const TopBar = () => {
     const theme = useTheme().theme;
 
     // States
-    const userAvatar = null;
+    const [avatar, setAvatar] = React.useState(null);
     const username = null;
     const [showDropdown, setShowDropdown] = React.useState(false);
 
@@ -33,6 +34,23 @@ export const TopBar = () => {
         navigate("/login");
     };
 
+    const getUserAvatar = () => {
+        axios.get(`${backendURL}/users/avatar/${auth.user.uuid}`, {
+            headers: {
+                "Content-Type": "application/json"
+            },
+            withCredentials: true
+        }).then(response => {
+            setAvatar(response.data);
+        }, err => {
+            console.warn(err);
+        });
+    };
+
+    React.useEffect(() => {
+        getUserAvatar();
+    }, []);
+
     return (
         <div className={`topBar ${theme}`}>
             <NavLink to="/" className="logo"><img src={theme === "lightTheme" ? fexaStoreLight : fexaStoreDark}/></NavLink>
@@ -44,11 +62,11 @@ export const TopBar = () => {
 
                 <div className="dropdown">
                     <div className="userAvatar" onClick={toggleDropdown} title={username ? username : "Username"}>
-                        <img src={userAvatar ? userAvatar : defaultAvatar} alt="User avatar" />
+                        <img src={avatar ? avatar : defaultAvatar} alt="User avatar" />
                     </div>
                     {showDropdown && (
                         <div className="dropdownContent">
-                            <NavLink to="/profile" className={({isActive}) => (isActive ? "active" : "none")}><i className="bx bx-user"/> Profile</NavLink>
+                            <NavLink to={`/profile/${auth.user.username}`} className={({isActive}) => (isActive ? "active" : "none")}><i className="bx bx-user"/> Profile</NavLink>
                             <NavLink to="/settings"className={({isActive}) => (isActive ? "active" : "none")}><i className="bx bx-cog"/> Settings</NavLink>
                             <a onClick={handleLogOut} className="logOut"><i className="bx bx-log-out"/> Log Out</a>
                         </div>

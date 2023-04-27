@@ -1,4 +1,5 @@
 const React = require("react");
+const axios = require("axios");
 
 // Components
 import "./signUpForm.css";
@@ -23,6 +24,8 @@ export const SignUpForm = () => {
     const [passwordType, setPasswordType] = React.useState({inputType: "password", eye: true});
     const [confirmPasswordType, setConfirmPasswordType] = React.useState({inputType: "password", eye: true});
     const [formError, setFormError] = React.useState("");
+    const [avatarImage, setAvatarImage] = React.useState(null);
+    const [avatar, setAvatar] = React.useState(null);
 
     const handleInputChange = (event) => {
         let newEdit = {...signUpState};
@@ -61,12 +64,36 @@ export const SignUpForm = () => {
         }
     };
 
+    const handleFileUpload = (event) => {
+        event.preventDefault();
+        let file = event.target.files[0];
+        console.log(file);
+        if (!file) {
+          return;
+        }
+
+        if (file.size > 2 * 1024 * 1024) {
+          alert("File size should not exceed 2MB.");
+          return;
+        }
+
+        
+        let displayReader = new FileReader();
+        displayReader.readAsDataURL(file);
+    
+        displayReader.onload = () => {
+            setAvatarImage(displayReader.result);
+        };
+
+        setAvatar(file);
+    };
+
     const handleSubmit = (event) => {
         console.info(`Contacting server...`);
         event.preventDefault();
 
         // prepare inputs
-        
+        apiCall(signUpState.username, signUpState.firstName, signUpState.lastName, signUpState.email, signUpState.password, avatar);
     };
 
     const handleLogin = (user) => {
@@ -78,24 +105,25 @@ export const SignUpForm = () => {
         navigate("/login");
     };
 
-    const apiCall = (username, email, password) => {
-        let callBody = {
-            email: email,
-            username: username,
-            password: password
-        };
+    const apiCall = (username, firstName, lastName, email, password, avatar) => {
+        const formData = new FormData();
+        formData.append("email", email);
+        formData.append("username", username);
+        formData.append("firstName", firstName);
+        formData.append("lastName", lastName);
+        formData.append("password", password);
+        formData.append("avatar", avatar);
 
-        axios.post(backendURL + "/users/create", callBody, {
+        axios.post(backendURL + "/users/create", formData, {
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "multipart/form-data"
             },
             withCredentials: true
         }).then(response => {
             // User created, now login
-
             let login = {
-                email: response.data.email,
-                password: callBody.password
+                email,
+                password
             };
 
             axios.post(backendURL + "/users/login", login, {
@@ -104,7 +132,7 @@ export const SignUpForm = () => {
                 },
                 withCredentials: true
             }).then(response => {
-
+                handleLogin(response.data);
             }, err => {
                 let errResponse = err.response;
 
@@ -135,40 +163,81 @@ export const SignUpForm = () => {
 
     return (
         <form className={`signUpForm ${theme}`} onSubmit={handleSubmit}>
+            <div className="avatarUpload">
+            <label htmlFor="avatar-upload">
+                {avatarImage ? (
+                <img src={avatarImage} alt="Avatar" />
+                ) : (
+                <div className="avatarPlaceholder">
+                    <i className="bx bx-camera"></i>
+                    <span>Upload Avatar</span>
+                </div>
+                )}
+            </label>
+            <input
+                type="file"
+                id="avatar-upload"
+                accept="image/*"
+                onChange={handleFileUpload}
+                style={{ display: "none" }}
+            />
+            </div>
+    
             {/*Email*/}
             <label htmlFor="email">Email address</label>
-            <input type="email" name="email" onChange={handleInputChange} required/>
-
+            <input type="email" name="email" onChange={handleInputChange} required />
+    
             {/*Username*/}
             <label htmlFor="username">Username</label>
-            <input type="text" name="username" onChange={handleInputChange} required/>
-
+            <input type="text" name="username" onChange={handleInputChange} required />
+    
+            {/*First Name*/}
+            <label htmlFor="firstName">First Name</label>
+            <input type="text" name="firstName" placeholder="optional" onChange={handleInputChange} />
+    
+            {/*Last Name*/}
+            <label htmlFor="lastName">Last Name</label>
+            <input type="text" name="lastName" placeholder="optional" onChange={handleInputChange} />
+    
             {/* Password */}
             <label htmlFor="password">Password</label>
             <div className={`passwordInput ${theme}`}>
-                <input type={passwordType.inputType} name="password" onChange={handleInputChange} required/>
-                <i className={`bx ${passwordType.eye ? "bx-hide" : "bx-show-alt"}`} onClick={handlePasswordType}/>
+            <input type={passwordType.inputType} name="password" onChange={handleInputChange} required />
+            <i className={`bx ${passwordType.eye ? "bx-hide" : "bx-show-alt"}`} onClick={handlePasswordType}></i>
             </div>
-
+    
             <label htmlFor="passwordConfirm">Confirm Password</label>
             <div className={`passwordInput ${theme}`}>
-                <input type={confirmPasswordType.inputType} name="confirmPassword" onChange={handleInputChange} required/>
-                <i className={`bx ${confirmPasswordType.eye ? "bx-hide" : "bx-show-alt"}`} onClick={handleConfirmPasswordType}/>
+            <input type={confirmPasswordType.inputType} name="confirmPassword" onChange={handleInputChange} required />
+            <i className={`bx ${confirmPasswordType.eye ? "bx-hide" : "bx-show-alt"}`} onClick={handleConfirmPasswordType}></i>
             </div>
-
-            <button type="submit" onClick={handleSubmit}>Sign Up</button>
-
+    
+            <button type="submit" onClick={handleSubmit}>
+            Sign Up
+            </button>
+    
             <div className={`alternativeSignup ${theme}`}>
-                <hr/>
-                <button><i class='bx bxl-github'/>Sign Up with Github</button>
-                <button><i class='bx bxl-google'/>Sign Up with Google</button>
-                <button><i class='bx bxl-github'/>Sign Up with SimpleLogin</button>
+            <hr />
+            <button>
+                <i class="bx bxl-github" />
+                Sign Up with Github
+            </button>
+            <button>
+                <i class="bx bxl-google" />
+                Sign Up with Google
+            </button>
+            <button>
+                <i class="bx bxl-github" />
+                Sign Up with SimpleLogin
+            </button>
             </div>
-
+    
             <div className={`loginText ${theme}`}>
-                <hr/>
-                <p>Existing User? <a onClick={loginClick}>Login</a></p>
+            <hr />
+            <p>
+                Existing User? <a onClick={loginClick}>Login</a>
+            </p>
             </div>
-        </form>
+        </form>      
     )
 }

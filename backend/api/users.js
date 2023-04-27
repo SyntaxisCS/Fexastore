@@ -8,11 +8,23 @@ const passport = require("passport");
 // Router initialization
 const users = express.Router();
 
+// Multer
+const multer = require("multer");
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+        fileSize: 1024 * 1024 * 5, // 5 MB
+        files: 1
+    }
+});
+
 // Database handlers
-const {getUserByUUID, getUserByEmail, getAllUsers, authenticate, isVerified} = require("./database/dbHandler");
+const {getUserByUUID, getUserByEmail, getAllUsers, createUser, authenticate, isVerified, getUserByUsername, checkVerificationToken, verifyEmail} = require("./database/dbHandler");
 
 // Helpers
-const {generateUUID, generateToken} = require("../Utils/keyHandler");
+const {generateUUID, generateToken} = require("../Utils/Helpers/keyHandler");
+const { sendAccountCreationNotification, sendEmailVerificationLink } = require("./email/emailHandler");
+const { handleAvatarUpload } = require("./cloudStorage/storageHandler");
 
 // Middleware
 const ensureAuthentication = (req, res, next) => {
@@ -22,6 +34,18 @@ const ensureAuthentication = (req, res, next) => {
         res.status(400).send({error: "Not authenticated"});
     }
 };
+
+const emailLimiter = rateLimit({
+    windowMs: 60*60*1000,
+    max: 15,
+    message: "",
+    statusCode: 429,
+    handler: (req, res, next, options) => {
+        res.status(options.statusCode).send(options.message);
+    },
+    standardHeaders: true,
+    store: new MemoryStore()
+});
 
 // Rate limiters
 const passwordChangeLimiter = rateLimit({
@@ -72,13 +96,15 @@ users.post("/login", passport.authenticate("local", {failureMessage: {error: "Co
         let userSess = {
             uuid: user.uuid,
             email: user.email,
+            username: user.username,
             userType: user.user_type
         };
 
         req.session.user = userSess;
 
+        console.info(`User ${user.uuid} logged in on ${new Date()}`);
         // Send user back
-        res.status(200).send(`User ${user.uuid} logged in on ${new Date()}`);
+        res.status(200).send(userSess);
     }, err => {
         console.error(err);
         if (err.status === 404) {
@@ -96,14 +122,6 @@ users.delete("/logout", ensureAuthentication, (req, res) => {
         req.logout((err) => {
             if (err) {
                 console.error(err);
-            }
-        });
-
-        // destroy session
-        req.session.destroy(err => {
-            if (err) {
-                console.error(err);
-                res.status(400).send("Unable to log out");
             }
         });
     }
@@ -131,7 +149,7 @@ users.get("/", ensureAuthentication, (req, res) => {
 });
 
 // Get user by uuid
-users.get("/:uuid", ensureAuthentication, (req, res) => {
+users.get("/id/:uuid", ensureAuthentication, (req, res) => {
     let uuid = req.params.uuid;
 
     // Ensure user is admin or same user
@@ -154,7 +172,8 @@ users.get("/:uuid", ensureAuthentication, (req, res) => {
                 dateJoined: user.date_joined,
                 numberOfUploads: user.number_of_uploads,
                 numberOfDownloads: user.number_of_downloads,
-                planType: user.plan_type
+                planType: user.plan_type,
+                avatar_url: user.avatar_url
             };
 
             res.send(publicUser);
@@ -163,35 +182,108 @@ users.get("/:uuid", ensureAuthentication, (req, res) => {
             console.error(err);
             res.status(500).send({error: "Could not retrieve user"});
         });
-
-        res.status(403).send({error: "You are not permitted to view this page"});
     }
 });
 
-// Create Account
-users.post("/create", (req, res) => {
-    let date = new Date();
+// Get user by username
+users.get("/username/:username", (req, res) => {
+    let username = req.params.username;
 
-    let user = req.body;
+    getUserByUsername(username).then(user => {
 
-    let userObject = {
-        uuid: generateUUID(user.email),
-    };
+        if (req.session.user.uuid === user.uuid) {
+            res.send(user);
+        } else {
+            let publicUser = {
+                uuid: user.uuid,
+                username: user.username,
+                firstName: null,
+                lastName: null,
+                isVerified: user.email_verified,
+                dateJoined: user.date_joined,
+                numberOfUploads: user.number_of_uploads,
+                numberOfDownloads: user.number_of_downloads,
+                planType: user.plan_type,
+                avatar_url: user.avatar_url
+            };
 
-    // Database
-    createUser(userObject).then(success => {
-        // redact password
-        userObject.password = "server redacted";
+            res.send(publicUser);
+        }
 
-        // Send email verification email
-            // Send account creation notification email
     }, err => {
         console.error(err);
-        if (err === "User already exists") {
-            res.status(409).send({error: "User already exists"});
+        res.status(500).send({error: "Could not retrieve user"});
+    });
+});
+
+// Get user avatar
+users.get("/avatar/:uuid", (req, res) => {
+    let uuid = req.params.uuid;
+
+    getUserByUUID(uuid).then(user => {
+        if (user.avatar_url) {
+            res.send(user.avatar_url);
         } else {
-            res.status(500).send({error: "Could not add user"});
+            res.status(204).send("null");
         }
+    }, err => {
+        console.error(err);
+        res.status(500).send({error: "Could not get avatar"});
+    });
+});
+
+// Create Account
+users.post("/create", upload.single("avatar"), (req, res) => {
+    let user = req.body;
+    let avatar = req.file;
+
+    const userId = generateUUID(user.email);
+
+    // upload avatar to s3
+    handleAvatarUpload(userId, avatar).then(url => {
+
+        let userObject = {
+            uuid: userId,
+            email: user.email,
+            firstName: user.firstName ? user.firstName : null,
+            lastName: user.lastName ? user.lastName : null,
+            username: user.username,
+            password: user.password,
+            avatarUrl: url,
+        };
+    
+        // Database
+        createUser(userObject).then(success => {
+            // redact password
+            userObject.password = "server redacted";
+
+            console.info(success);
+
+            // Send email verification email
+            sendAccountCreationNotification(userObject.email, {username: userObject.username, firstName: userObject.first_name, lastName: userObject.last_name}).then(response => {
+                sendEmailVerificationLink(userObject.email, {username: userObject.username, firstName: userObject.first_name, lastName: userObject.last_name}).then(response => {
+                    console.info(response);
+                    res.status(200).send(userObject);
+                }, err => {
+                    console.error(err);
+                    res.status(200).send(success + " could not send verification email");
+                });
+            }, err => {
+                console.error(err);
+                res.status(200).send(success + " could not send welcome email");
+            });
+        }, err => {
+            console.error(err);
+            if (err === "User already exists") {
+                res.status(409).send({error: "User already exists"});
+            } else {
+                res.status(500).send({error: "Could not add user"});
+            }
+        });
+
+    }, err => {
+        console.error(err);
+        res.status(500).send({error: "Could not upload avatar"});
     });
 });
 
@@ -234,6 +326,40 @@ users.post("/changepassword", ensureAuthentication, (req, res) => {
     }, err => {
         res.status(403).send({error: "Old password not correct"});
     });
+});
+
+users.post("/verifyemail", emailLimiter, (req, res) => {
+    if (req.body.token) {
+        checkVerificationToken(req.body.token).then(good => {
+            // get user with id found with token
+            getUserByUUID(good.user_id).then(user => {
+                // verifyEmail
+                verifyEmail(user.email).then(response => {
+                    res.status(201).send(`Email verify on ${new Date()}`);
+                }, err => {
+                    if (err.includes("has already verified the email")) {
+                        res.status(400).send({error: "You have already verified your email!"});
+                    } else if (err === "User does not exist") {
+                        res.status(400).send({error: err});
+                    } else {
+                        res.status(500).send({error: "Server Error"});
+                    }
+                });
+            }, err => {
+                console.error(err);
+                res.status(500).send({error: "Could not verify email"});
+            });
+        }, err => {
+            if (err === "Token has expired") {
+                res.status(400).send({error: "Token has expired"});
+            } else if (err === "Token does not exist") {
+                res.status(400).send({error: "Token does not exist"});
+            } else {
+                console.error(err);
+                res.status(500).send({error: "Server Error"});
+            }
+        });
+    }
 });
 
 // Export router

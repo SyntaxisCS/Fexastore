@@ -11,6 +11,7 @@ import { LoginPage } from "./Pages/loginPage";
 import { ProfilePage } from "./Pages/profilePage";
 import { SignUpPage } from "./Pages/signUpPage";
 import { UploadPage } from "./Pages/uploadPage";
+import { VerifyEmailPage } from "./Pages/verifyEmailPage";
 import { AuthProvider } from "./Utils/Authentication/auth";
 import { ThemeProvider } from "./Utils/Themes/theme";
 
@@ -31,11 +32,14 @@ ReactDOM.render((
                 <Routes>
                     <Route path="/" element={<HomePage/>}/>
                     <Route path="/upload" element={<UploadPage/>}/>
-                    <Route path="/profile" element={<ProfilePage/>}/>
+                    <Route path="/profile/:username" element={<ProfilePage/>}/>
 
                     {/*Authentication*/}
                     <Route path="/login" element={<LoginPage/>}/>
                     <Route path="/signup" element={<SignUpPage/>}/>
+
+                    {/*Verify Email*/}
+                    <Route path="/verify/:token" element={<VerifyEmailPage/>}/>
                 </Routes>
             </BrowserRouter>
         </ThemeProvider>

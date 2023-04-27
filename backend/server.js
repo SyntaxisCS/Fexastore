@@ -27,7 +27,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 // Cors
 app.use(cors({
-    origin: ["localhost"],
+    origin: ["http://localhost", "http://localhost:9801"],
     methods: ["POST", "PUT", "GET", "OPTIONS", "HEAD", "DELETE"],
     credentials: true
 }));
@@ -40,6 +40,9 @@ const pgPool = new pg.Pool({
     password: process.env.pgPassword,
     database: process.env.pgDB
 });
+
+// Database Helpers
+const { getUserByEmail, getUserByUUID } = require("./api/database/dbHandler");
 
 // Session Setup
 app.use(session({
@@ -60,6 +63,22 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Passport Configuration
+passport.use(new LocalStrategy({usernameField:"email",passwordField:"password"}, (email, password, done) => {
+    getUserByEmail(email).then(user => {
+
+        bcrypt.compare(password, user.password).then(result => {
+            if (result) {
+                return done(null, user);
+            } else {
+                return done(null, false, {message: "Incorrect Password"});
+            }
+        }, err => {
+            return done(err);
+        });
+    }, err => {
+        return done(err);
+    });
+}));
 
 // Passport User Handling
 passport.serializeUser((user, done) => {
@@ -67,10 +86,21 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser((user, done) => {
-    // get user by uuid
+    getUserByUUID(user.uuid).then(response => {
+        done(null, user);
+    }, err => {
+        done(err);
+    });
 });
 
 // Routes
+// Users
+const userRouter = require("./api/users");
+app.use("/users", userRouter);
+
+// Uploads
+const uploadRouter = require("./api/uploads");
+app.use("/uploads", uploadRouter);
 
 app.listen(PORT, () => {
     console.info(`Server listening on port ${PORT}`);
