@@ -9,6 +9,7 @@ import "./index.css";
 import { HomePage } from "./Pages/homePage";
 import { LoginPage } from "./Pages/loginPage";
 import { ProfilePage } from "./Pages/profilePage";
+import { AccountSettingsPage } from "./Pages/Settings/accountSettings";
 import { SignUpPage } from "./Pages/signUpPage";
 import { UploadPage } from "./Pages/uploadPage";
 import { VerifyEmailPage } from "./Pages/verifyEmailPage";
@@ -33,6 +34,9 @@ ReactDOM.render((
                     <Route path="/" element={<HomePage/>}/>
                     <Route path="/upload" element={<UploadPage/>}/>
                     <Route path="/profile/:username" element={<ProfilePage/>}/>
+
+                    {/*Settings*/}
+                    <Route path="/settings/account" element={<AccountSettingsPage/>}/>
 
                     {/*Authentication*/}
                     <Route path="/login" element={<LoginPage/>}/>

@@ -67,7 +67,7 @@ export const TopBar = () => {
                     {showDropdown && (
                         <div className="dropdownContent">
                             <NavLink to={`/profile/${auth.user.username}`} className={({isActive}) => (isActive ? "active" : "none")}><i className="bx bx-user"/> Profile</NavLink>
-                            <NavLink to="/settings"className={({isActive}) => (isActive ? "active" : "none")}><i className="bx bx-cog"/> Settings</NavLink>
+                            <NavLink to="/settings/account"className={({isActive}) => (isActive ? "active" : "none")}><i className="bx bx-cog"/> Settings</NavLink>
                             <a onClick={handleLogOut} className="logOut"><i className="bx bx-log-out"/> Log Out</a>
                         </div>
                     )}

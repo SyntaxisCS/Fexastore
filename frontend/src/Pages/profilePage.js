@@ -35,7 +35,7 @@ export const ProfilePage = () => {
         }).then(user => {
             setUser(user.data);
         }, err => {
-            console.log(err);
+            console.error(err);
             navigate("/");
         });
 
