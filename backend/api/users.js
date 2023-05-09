@@ -19,11 +19,11 @@ const upload = multer({
 });
 
 // Database handlers
-const {getUserByUUID, getUserByEmail, getAllUsers, createUser, authenticate, isVerified, getUserByUsername, checkVerificationToken, verifyEmail} = require("./database/dbHandler");
+const {getUserByUUID, getUserByEmail, getAllUsers, createUser, authenticate, isVerified, getUserByUsername, checkVerificationToken, verifyEmail, changeUserEmail, emailChangeTokenFirstEmailConsent, checkEmailChangeToken} = require("./database/dbHandler");
 
 // Helpers
 const {generateUUID, generateToken} = require("../Utils/Helpers/keyHandler");
-const { sendAccountCreationNotification, sendEmailVerificationLink } = require("./email/emailHandler");
+const { sendAccountCreationNotification, sendEmailVerificationLink, sendInitialEmailChange, sendNewEmailChangeVerification, sendEmailChangeNotification } = require("./email/emailHandler");
 const { handleAvatarUpload } = require("./cloudStorage/storageHandler");
 
 // Middleware
@@ -293,7 +293,7 @@ users.delete("/delete", ensureAuthentication, (req, res) => {
 });
 
 // Change Password
-users.post("/changepassword", ensureAuthentication, (req, res) => {
+users.put("/change/password", ensureAuthentication, (req, res) => {
     // Check old password
     authenticate(req.session.user.email, req.body.oldPassword).then(authenticated => {
 
@@ -305,7 +305,7 @@ users.post("/changepassword", ensureAuthentication, (req, res) => {
                 // Change password if user is verified
                 changeUserPassword(req.session.user.email, req.body.newPassword).then(response => {
                     
-                    // Send email
+                    // Send email 
 
                 }, err => {
                     if (err === "Passwords cannot match") {
@@ -326,6 +326,97 @@ users.post("/changepassword", ensureAuthentication, (req, res) => {
     }, err => {
         res.status(403).send({error: "Old password not correct"});
     });
+});
+
+// Create Email request (does not actually change email)
+users.put("/change/email", ensureAuthentication, (req, res) => {
+    let newEmail = req.body.email;
+
+    // check if email is verified first
+    isVerified(req.session.user.email).then(verified => {
+
+        if (verified.verified) {
+
+            // send email
+            sendInitialEmailChange(req.session.user.email, newEmail).then(success => {
+                res.status(200).send(success);
+            }, err => {
+                console.error(err);
+                res.status(500).send({error: err});
+            });
+        } else {
+            res.status(403).send({error: "You must have a verified email to request an email change"});
+        }
+    }, err => {
+        res.status(400).send({error: err});
+    });
+});
+
+// First Email Consent
+users.post("/change/email/consent", (req, res) => {
+    const token = req.query.token;
+
+    if (token) {
+        checkEmailChangeToken(token).then(dbToken => {
+            emailChangeTokenFirstEmailConsent(token).then(success => {
+                sendNewEmailChangeVerification(dbToken.old_email, dbToken.new_email).then(success => {
+                    res.status(200).send(success);
+                }, err => {
+                    res.status(500).send({error: err});
+                })
+            }, err => {
+                console.error(err);
+                res.status(500).send({error: "We ran into an error: Could not validate the consent of email one"});
+            })
+        }, err => {
+            if (err.includes("Token expired")) {
+                res.status(400).send({error: "Token has expired. Please make a new request."});
+            } else if (err === "Token does not exist") {
+                res.status(404).send({error: err});
+            } else {
+                res.status(500).send({error: "Server Error"});
+            }
+        });
+    } else {
+        res.end();
+    }
+});
+
+// Change Email (both emails consent, actually make change here)
+users.post("/change/email/final", (req, res) => {
+    const token = req.query.token;
+
+    if (token) {
+        checkEmailChangeToken(token).then(dbToken => {
+
+            changeUserEmail(dbToken.old_email, dbToken.new_email).then(success => {
+                sendEmailChangeNotification(dbToken.old_email, dbToken.new_email).then(success => {
+                    res.status(201).send(`Email changed from ${dbToken.old_email} to ${dbToken.new_email}`);
+                }, err => {
+                    res.status(500).send({error: err});
+                });
+            }, err => {
+                if (err === "Emails cannot match") {
+                    res.status(400).send({error: err});
+                } else if (err.includes("Could not verify email")) {
+                    res.status(500).send({error: "Could not verify email"});
+                } else {
+                    res.status(500).send({error: err});
+                }
+            });
+
+        }, err => {
+            if (err.includes("Token expired")) {
+                res.status(400).send({error: "Token has expired. Please make a new request."});
+            } else if (err === "Token does not exist") {
+                res.status(404).send({error: err});
+            } else {
+                res.status(500).send({error: "Server Error"});
+            }
+        });
+    } else {
+        res.end();
+    }
 });
 
 users.post("/verifyemail", emailLimiter, (req, res) => {
