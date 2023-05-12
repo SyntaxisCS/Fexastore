@@ -19,7 +19,7 @@ const upload = multer({
 });
 
 // Database handlers
-const {getUserByUUID, getUserByEmail, getAllUsers, createUser, authenticate, isVerified, getUserByUsername, checkVerificationToken, verifyEmail, changeUserEmail, emailChangeTokenFirstEmailConsent, checkEmailChangeToken} = require("./database/dbHandler");
+const {getUserByUUID, getUserByEmail, getAllUsers, createUser, authenticate, isVerified, getUserByUsername, checkVerificationToken, verifyEmail, changeUserEmail, emailChangeTokenFirstEmailConsent, checkEmailChangeToken, changeUserFirstName, changeUserLastName, isUsernameUnique, changeUserUsername} = require("./database/dbHandler");
 
 // Helpers
 const {generateUUID, generateToken} = require("../Utils/Helpers/keyHandler");
@@ -451,6 +451,53 @@ users.post("/verifyemail", emailLimiter, (req, res) => {
             }
         });
     }
+});
+
+users.put("/change/firstname", ensureAuthentication, (req, res) => {
+    if (req.body.firstName === "") {
+        req.body.firstName = null;
+    }
+
+    changeUserFirstName(req.session.user.email, req.body.firstName).then(success => {
+        res.status(201).send(`First name for user with email ${req.session.user.email} changed to ${req.body.firstName} on ${new Date()}`);
+    }, err => {
+        console.error(err);
+        res.status(500).send({error: "Could not change first name"});
+    });
+});
+
+users.put("/change/lastname", ensureAuthentication, (req, res) => {
+    if (req.body.lastName === "") {
+        req.body.lastName = null;
+    }
+    
+    changeUserLastName(req.session.user.email, req.body.lastName).then(success => {
+        res.status(201).send(`Last name for user with email ${req.session.user.email} changed to ${req.body.lastName} on ${new Date()}`);
+    }, err => {
+        console.error(err);
+        res.status(500).send({error: "Could not change last name"});
+    });
+});
+
+users.put("/change/username", ensureAuthentication, (req, res) => {
+    if (req.body.username) {
+        res.status(400).send({error: "Missing fields"});
+    }
+
+    isUsernameUnique(req.body.username).then(success => {
+        changeUserUsername(req.session.user.email, req.body.username).then(success => {
+            res.status(201).send(`Username changed to ${req.body.username} on ${new Date()}`);
+        }, err => {
+            console.error(err);
+            res.status(500).send({error: "Server Error"});
+        });
+    }, err => {
+        if (err === "A user already exists with that username") {
+            res.status(400).send({error: "That username is already taken"});
+        } else {
+            res.status(500).send({error: "Server Error"});
+        }
+    });
 });
 
 // Export router

@@ -37,6 +37,13 @@ const generateToken = () => {
     return nano();
 };
 
+const generateUserTag = (username) => {
+    const tagAlphabet = "0123456789";
+    let nano = customAlphabet(tagAlphabet, 4);
+
+    return `${username}#${nano()}`; // username#1111;
+}
+
 // Encryption Key Handling
 const deriveKey = (userId, plainTextPasword, salt) => {
     return new Promise((resolve, reject) => {
@@ -73,6 +80,7 @@ module.exports = {
     generateUUID, 
     generateNanoID, 
     generateToken,
+    generateUserTag,
 
     // Encryption Keys
     deriveKey,
