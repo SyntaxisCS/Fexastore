@@ -1,0 +1,35 @@
+.accountSettingsPage .dangerZonePanel {
+    height: 50%;
+    padding: 10px;
+    max-width: 1000px;
+    height: fit-content;
+    border-radius: 5px;
+    grid-column-gap: 50px;
+    border: 1px solid #B00020;
+    margin: 3em auto 1.5em auto;
+    grid-template-columns: auto auto;
+}
+
+.accountSettingsPage .dangerZonePanel h3 {
+    margin: 0;
+    color: #c3c3c3;
+    font-size: 16px;
+}
+
+.accountSettingsPage .dangerZonePanel p {
+    margin: 0;
+    color: #c3c3c3;
+    font-size: 14px;
+}
+
+.accountSettingsPage .dangerZonePanel .downloadDataBtn, .deleteBtn {
+    width: 12%;
+    border: none;
+    color: #f9f9f9;
+    cursor: pointer;
+    font-size: 17px;
+    max-width: 1000px;
+    padding: 10px 15px;
+    border-radius: 5px;
+    background-color: #B00020;
+}

@@ -41,7 +41,9 @@ export const SearchResults = () => {
             <h2>{searchQuery}</h2>
             {renderedResults ? renderedResults : <div style={{display:"none"}}/>}
 
-            <Pagination pageCount={pageCount} onPageChange={handlePageChange} />
+            {pageCount > 1 && (
+                <Pagination pageCount={pageCount} onPageChange={handlePageChange} />
+            )}
         </div>
     );
 };

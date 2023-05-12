@@ -93,6 +93,8 @@ export const SignUpForm = () => {
         event.preventDefault();
 
         // prepare inputs
+        // password
+        // 1 lowercase, 1 uppercase, 1 number, 1 special, 10 characters minimum
         apiCall(signUpState.username, signUpState.firstName, signUpState.lastName, signUpState.email, signUpState.password, avatar);
     };
 

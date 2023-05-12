@@ -1,0 +1,41 @@
+.settingsNavBar {
+    width: 25%;
+    z-index: 2;
+    margin: auto;
+    display: flex;
+    color: #222237;
+    margin-top: 2em;
+    max-width: 600px;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff;
+    padding: 10px 50px 10px 50px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.settingsNavBar a {
+    flex-grow: 1;
+    display: flex;
+    padding: 10px;
+    color: #222237;
+    font-size: 16px;
+    text-align: center;
+    align-items: center;
+    text-decoration: none;
+    justify-content: center;
+    border-right: 1px solid #dadce0;
+}
+
+.settingsNavBar a:last-of-type {
+    border-right: none;
+}
+
+.settingsNavBar a.active {
+    color: #5d02fb;
+}
+
+.settingsNavBar a:hover {
+    color: #5d02fb;
+}

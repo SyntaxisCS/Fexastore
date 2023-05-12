@@ -1,0 +1,59 @@
+.themeSelector {
+    display: flex;
+    flex-direction: column;
+    width: 25%;
+    max-width: 600px;
+    margin: auto;
+    margin-top: 0;
+    padding: 50px;
+    background-color: #ffffff;
+    border-radius: 0 0 5px 5px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .themeSelector .title {
+    font-size: 16px;
+    font-weight: 500;
+    color: #222237;
+    margin-top: 2em;
+  }
+  
+  .themeSelector select {
+    width: 100%;
+    padding: 8px;
+    margin: 8px 0;
+    outline: none;
+    color: #222237;
+    display: block;
+    font-size: 16px;
+    border-radius: 5px;
+    caret-color: #5d02fb;
+    box-sizing: border-box;
+    border: 1px solid #e2e2e2;
+    background-color: #ffffff;
+    font-family: "Poppins", sans-serif;
+  }
+  
+  .themeSelector select:focus {
+    border: 1px solid #5d02fb;
+  }
+  
+  .themeSelector button[type="button"] {
+    border: none;
+    margin: 3px 0;
+    color: #ffffff;
+    font-size: 17px;
+    margin-top: 1em;
+    cursor: pointer;
+    margin-bottom: 0;
+    font-weight: 500;
+    padding: 10px 15px;
+    border-radius: 5px;
+    letter-spacing: 2px;
+    background: linear-gradient(to right, #5d02fb 0%, #EC02F7 140%);
+  }
+  
+  .themeSelector button[type="button"]:hover {
+    background: #5d02fb;
+  }
+  

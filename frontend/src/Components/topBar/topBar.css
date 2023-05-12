@@ -104,6 +104,24 @@
     background-color: none;
 }
 
+/* Themes */
+.topBar.darkTheme {
+    color: #ffffff;
+    background-color: #000000;
+}
+
+.topBar.darkTheme a {
+    color: #ffffff;
+}
+
+.topBar.darkTheme a:hover {
+    color: #5d02fb;
+}
+
+.topBar.darkTheme .dropdownContent {
+    background-color: #000000;
+}
+
 /* Responsiveness */
 @media only screen and (max-width: 600px) {
     .topBar .logo {

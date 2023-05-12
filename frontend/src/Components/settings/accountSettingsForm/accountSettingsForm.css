@@ -1,0 +1,152 @@
+.accountSettingsForm {
+    display: flex;
+    flex-direction: column;
+    width: 25%;
+    max-width: 600px;
+    margin: auto;
+    margin-top: 0;
+    padding: 50px;
+    background-color: #ffffff;
+    border-radius: 0 0 5px 5px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .accountSettingsForm label {
+    font-size: 16px;
+    font-weight: 500;
+    color: #222237;
+    margin-top: 2em;
+  }
+
+.accountSettingsForm label:last-of-type {
+    width: 100%;
+    color: #222237;
+    margin: 1em 0 0 0;
+}
+  
+.accountSettingsForm input[type="text"],
+.accountSettingsForm input[type="email"],
+.accountSettingsForm input[type="password"] {
+  width: 100%;
+  padding: 8px;
+  margin: 8px 0;
+  outline: none;
+  color: #222237;
+  display: block;
+  font-size: 16px;
+  border-radius: 5px;
+  caret-color: #5d02fb;
+  box-sizing: border-box;
+  border: 1px solid #e2e2e2;
+  background-color: #ffffff;
+  font-family: "Poppins", sans-serif;
+}
+
+.accountSettingsForm input[type="text"]:focus,
+.accountSettingsForm input[type="email"]:focus,
+.accountSettingsForm input[type="password"]:focus {
+  border: 1px solid #5d02fb;
+}
+
+.accountSettingsForm .avatarUpload {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin-bottom: 20px;
+  border-radius: 50%;
+  border: 1px solid #e2e2e2;
+  overflow: hidden;
+  cursor: pointer;
+  background-color: rgba(255, 255, 255, 0.2);
+  z-index: 1;
+}
+
+.accountSettingsForm .avatarUpload img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.accountSettingsForm .avatarUpload .avatarPlaceholder {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+  color: #222237;
+}
+
+.accountSettingsForm .avatarUpload .avatarPlaceholder i {
+  font-size: 36px;
+  margin-bottom: 8px;
+}
+
+.accountSettingsForm .avatarUpload .avatarPlaceholder span {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.accountSettingsForm .avatarUpload:hover {
+  opacity: 0.8;
+}
+
+.accountSettingsForm button[type="button"] {
+  border: none;
+  margin: 3px 0;
+  color: #ffffff;
+  font-size: 17px;
+  margin-top: 1em;
+  cursor: pointer;
+  margin-bottom: 0;
+  font-weight: 500;
+  padding: 10px 15px;
+  border-radius: 5px;
+  letter-spacing: 2px;
+  background: linear-gradient(to right, #5d02fb 0%, #EC02F7 140%);
+}
+
+.accountSettingsForm button[type="button"]:hover {
+  background: #5d02fb;
+}
+
+.accountSettingsForm .deleteAccount {
+  margin-top: 30px;
+  display: flex;
+  align-items: center;
+}
+
+.accountSettingsForm .deleteAccount label {
+  margin-right: 20px;
+}
+
+.accountSettingsForm .deleteAccount button[type="button"] {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: #c42b1c;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.accountSettingsForm .deleteAccount button[type="button"]:hover {
+  background-color: #ad2316;
+}
+
+.accountSettingsForm .accountInfoSuccessText,
+.accountSettingsForm .accountInfoErrorText,
+.accountSettingsForm .emailChangeSuccessText,
+.accountSettingsForm .emailChangeErrorText,
+.accountSettingsForm .passwordChangeSuccessText,
+.accountSettingsForm .passwordChangeErrorText {
+  margin-top: 5px;
+  color: #c42b1c;
+  font-size: 14px;
+  font-weight: 500;
+}
