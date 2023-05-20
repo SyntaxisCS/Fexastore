@@ -19,7 +19,7 @@ const upload = multer({
 });
 
 // Database handlers
-const {getUserByUUID, getUserByEmail, getAllUsers, createUser, authenticate, isVerified, getUserByUsername, checkVerificationToken, verifyEmail, changeUserEmail, emailChangeTokenFirstEmailConsent, checkEmailChangeToken, changeUserFirstName, changeUserLastName, isUsernameUnique, changeUserUsername} = require("./database/dbHandler");
+const {getUserByUUID, getUserByEmail, getAllUsers, createUser, authenticate, isVerified, getUserByUsername, checkVerificationToken, verifyEmail, changeUserEmail, emailChangeTokenFirstEmailConsent, checkEmailChangeToken, changeUserFirstName, changeUserLastName, isUsernameUnique, changeUserUsername, changeUserNameVisibility} = require("./database/dbHandler");
 
 // Helpers
 const {generateUUID, generateToken} = require("../Utils/Helpers/keyHandler");
@@ -480,7 +480,7 @@ users.put("/change/lastname", ensureAuthentication, (req, res) => {
 });
 
 users.put("/change/username", ensureAuthentication, (req, res) => {
-    if (req.body.username) {
+    if (!req.body.username) {
         res.status(400).send({error: "Missing fields"});
     }
 
@@ -496,6 +496,22 @@ users.put("/change/username", ensureAuthentication, (req, res) => {
             res.status(400).send({error: "That username is already taken"});
         } else {
             res.status(500).send({error: "Server Error"});
+        }
+    });
+});
+
+users.put("/change/namevisibility", ensureAuthentication, (req, res) => {
+    if (!req.body.newVis) {
+        res.status(400).send({error: "Missing fields"});
+    }
+
+    changeUserNameVisibility(req.session.user.email, req.body.newVis).then(success => {
+        res.status(200).send(success);
+    }, err => {
+        if (err === "User does not exist") {
+            res.status(404).send({error: err});
+        } else {
+            res.status(500).send({error: err});
         }
     });
 });

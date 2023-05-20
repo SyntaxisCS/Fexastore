@@ -531,6 +531,35 @@ const addUserUploadNumber = async (email, numOfUploads) => {
     });
 };
 
+const changeUserNameVisibility = async (email, newVis) => {
+    return new Promise((resolve, reject) => {
+        getUserByEmail(email).then(user => {
+
+            if (user.name_visibility === newVis) {
+                reject(`Visibility is already set to ${newVis}`);
+            } else {
+
+                let query = {
+                    name: "changeUserNameVisibility",
+                    text: "UPDATE users SET name_visibility = $1 WHERE email = $2",
+                    values: [newVis, email]
+                };
+
+                DB.query(query).then(response => {
+                    resolve(`${user.uuid} name visibility changed to ${newVis} on ${new Date()}`);
+                }, err => {
+                    console.error(err);
+                    reject("Could not update user name visibility");
+                });
+            }
+
+        }, err => {
+            console.error(err);
+            reject("User does not exist");
+        });
+    });
+};
+
 // Authenticate
 const authenticate = async (email, password) => {
     return new Promise((resolve, reject) => {
@@ -1256,6 +1285,7 @@ module.exports = {
     changeUserEmail,
     verifyEmail,
     isVerified,
+    changeUserNameVisibility,
     authenticate,
 
     // User Privacy
