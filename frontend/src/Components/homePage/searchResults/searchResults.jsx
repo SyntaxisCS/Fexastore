@@ -32,10 +32,6 @@ export const SearchResults = () => {
         setCurrentPage(page + 1);
     };
 
-    React.useEffect(() => {
-        console.log(searchQuery);
-    }, [searchQuery]);
-
     return (
         <div className="searchResults">
             <h2>{searchQuery}</h2>

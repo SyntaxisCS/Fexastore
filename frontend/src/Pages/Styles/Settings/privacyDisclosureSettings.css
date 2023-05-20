@@ -1,12 +1,11 @@
-.accountSettingsPage {
+.privacyDisclosureSettingsPage {
     color: var(--lightText);
     min-height: 100vh;
     height: fit-content;
     background-color: var(--lightBackground);
 }
 
-/* Dark Theme */
-.accountSettingsPage.darkTheme {
+.privacyDisclosureSettingsPage.darkTheme {
     color: var(--darkText);
     background-color: var(--darkBackground);
 }

@@ -4,3 +4,10 @@
     height: fit-content;
     background-color: #f3f5f7;
 }
+
+/* Dark Theme */
+
+.themeSettingsPage.darkTheme {
+    color: var(--darkText);
+    background-color: var(--darkBackground);
+}

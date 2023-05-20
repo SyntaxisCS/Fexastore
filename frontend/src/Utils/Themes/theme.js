@@ -33,9 +33,9 @@ export const ThemeProvider = ({children}) => {
     React.useEffect(() => {
         let savedTheme = cookies.get(cookieName);
         if (savedTheme) {
-           setTheme(savedTheme);
+           changeTheme(savedTheme);
         } else {
-            setTheme("lightTheme");
+            changeTheme("light");
         }
     }, []);
 

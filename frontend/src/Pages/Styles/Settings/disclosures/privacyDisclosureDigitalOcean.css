@@ -1,12 +1,11 @@
-.accountSettingsPage {
+.privacyDisclosureDigitalOceanPage {
     color: var(--lightText);
     min-height: 100vh;
     height: fit-content;
     background-color: var(--lightBackground);
 }
 
-/* Dark Theme */
-.accountSettingsPage.darkTheme {
+.privacyDisclosureDigitalOceanPage.darkTheme {
     color: var(--darkText);
     background-color: var(--darkBackground);
 }

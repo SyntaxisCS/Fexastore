@@ -35,7 +35,7 @@ export const TopBar = () => {
     };
 
     const getUserAvatar = () => {
-        axios.get(`${backendURL}/users/avatar/${auth.user.uuid}`, {
+        axios.get(`${backendURL}/users/avatar/${auth.user ? auth.user.uuid : "undefined"}`, {
             headers: {
                 "Content-Type": "application/json"
             },
@@ -66,7 +66,7 @@ export const TopBar = () => {
                     </div>
                     {showDropdown && (
                         <div className="dropdownContent">
-                            <NavLink to={`/profile/${auth.user.username}`} className={({isActive}) => (isActive ? "active" : "none")}><i className="bx bx-user"/> Profile</NavLink>
+                            <NavLink to={`/profile/${auth.user ? auth.user.username : "undefined"}`} className={({isActive}) => (isActive ? "active" : "none")}><i className="bx bx-user"/> Profile</NavLink>
                             <NavLink to="/settings/account"className={({isActive}) => (isActive ? "active" : "none")}><i className="bx bx-cog"/> Settings</NavLink>
                             <a onClick={handleLogOut} className="logOut"><i className="bx bx-log-out"/> Log Out</a>
                         </div>

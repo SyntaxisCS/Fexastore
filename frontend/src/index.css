@@ -1,5 +1,29 @@
-/* Basic Style Information */
+/* Variables */
+:root {
+    /* Text */
+    --lightText: #222237;
+    --darkText: #ffffff;
 
+    /* Backgrounds */
+    --lightBackground: #f3f5f7;
+    --lightBackgroundSecondary: #ffffff;
+
+    --darkBackground: #000000;
+    --darkBackgroundSecondary: #090909;
+
+
+    --primary: #8c00ff;
+    --accent: #EC02F7;
+    --primaryAccentGradient: linear-gradient(to right, #8c00ff 0%, #EC02F7 140%);
+    
+    
+    /* Additionals */
+    --lightBorder: #e2e2e2;
+    --darkBorder: #1d1d1d;
+    --errorText: #c42b1c;
+}
+
+/* Basic Style Information */
 html, body {
     overscroll-behavior: none;
     overscroll-behavior-y: none;

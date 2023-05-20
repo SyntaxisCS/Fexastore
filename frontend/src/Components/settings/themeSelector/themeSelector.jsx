@@ -28,8 +28,8 @@ export const ThemeSelector = (props) => {
     };
 
     return (
-        <div className={`themeSelector ${theme}`}>
-            <h1 className={`title ${theme}`}>What theme would you like for Fexastore?</h1>
+        <div className={`themeSelector ${theme.theme}`}>
+            <h1 className={`title ${theme.theme}`}>What theme would you like for Fexastore?</h1>
             <select value={theme.theme ? theme.theme : "lightTheme"} onChange={handleThemeChange}>
                 <option value="lightTheme">Light</option>
                 <option value="darkTheme">Dark</option>

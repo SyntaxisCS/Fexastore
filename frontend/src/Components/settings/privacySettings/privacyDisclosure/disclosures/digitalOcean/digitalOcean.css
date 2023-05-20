@@ -1,0 +1,66 @@
+.privacyDisclosureDigitalOcean {
+    display: flex;
+    flex-direction: column;
+    width: 25%;
+    max-width: 600px;
+    margin: auto;
+    margin-top: 0;
+    padding: 50px;
+    transition: all ease 0.5s;
+    position: relative;
+    background-color: var(--darkText);
+    border-radius: 0 0 5px 5px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.privacyDisclosureDigitalOcean .backButtonWrapper {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    top: 50px;
+    left: 50px;
+}
+
+.backButtonWrapper i {
+    margin-right: 5px;
+}
+  
+.backButtonWrapper p {
+    margin: 0;
+}
+
+.privacyDisclosureDigitalOcean .header {
+    text-align: center;
+}
+
+.privacyDisclosureDigitalOcean .header .visit a {
+    text-decoration: none;
+    color: var(--primary);
+}
+
+.privacyDisclosureDigitalOcean .header .visit a:hover {
+    text-decoration: underline;
+}
+
+/* Dark Theme */
+
+.privacyDisclosureDigitalOcean.darkTheme {
+    background-color: var(--darkBackgroundSecondary);
+}
+
+.privacyDisclosureDigitalOcean.darkTheme .buttonWrapper:hover {
+    background-color: #1d1d1d;
+}
+
+/* Responsiveness */
+@media only screen and (max-width: 1300px) {
+    .privacyDisclosureDigitalOcean {
+        width: 50%;
+    }
+}
+
+@media only screen and (max-width: 650px) {
+    .privacyDisclosureDigitalOcean {
+        width: 75%;
+    }
+}

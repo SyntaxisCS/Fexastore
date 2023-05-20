@@ -3,15 +3,16 @@
     z-index: 2;
     margin: auto;
     display: flex;
-    color: #222237;
+    color: var(--lightText);
     margin-top: 2em;
     max-width: 600px;
     align-items: center;
     justify-content: center;
-    background-color: #ffffff;
+    background-color: var(--lightBackgroundSecondary);
     padding: 10px 50px 10px 50px;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
+    transition: all ease 0.5s;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -19,13 +20,13 @@
     flex-grow: 1;
     display: flex;
     padding: 10px;
-    color: #222237;
+    color: var(--lightText);
     font-size: 16px;
     text-align: center;
     align-items: center;
     text-decoration: none;
     justify-content: center;
-    border-right: 1px solid #dadce0;
+    border-right: 1px solid var(--lightBorder);
 }
 
 .settingsNavBar a:last-of-type {
@@ -33,9 +34,42 @@
 }
 
 .settingsNavBar a.active {
-    color: #5d02fb;
+    color: var(--primary);
 }
 
 .settingsNavBar a:hover {
-    color: #5d02fb;
+    color: var(--primary);
+}
+
+/* Dark Theme */
+
+.settingsNavBar.darkTheme {
+    color: var(--darkText);
+    background-color: var(--darkBackgroundSecondary);
+}
+
+.settingsNavBar.darkTheme a {
+    color: var(--darkText);
+    border-right: 1px solid var(--darkBorder);
+}
+
+.settingsNavBar.darkTheme a.active {
+    color: var(--primary);
+}
+
+.settingsNavBar.darkTheme a:hover {
+    color: var(--primary);
+}
+
+/* Responsiveness */
+@media only screen and (max-width: 1300px) {
+    .settingsNavBar {
+        width: 50%;
+    }
+}
+
+@media only screen and (max-width: 650px) {
+    .settingsNavBar {
+        width: 75%;
+    }
 }

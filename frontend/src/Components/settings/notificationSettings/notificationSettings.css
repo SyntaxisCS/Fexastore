@@ -1,4 +1,4 @@
-.privacySettings {
+.notificationSettings {
     display: flex;
     flex-direction: column;
     width: 25%;
@@ -6,14 +6,12 @@
     margin: auto;
     margin-top: 0;
     padding: 50px;
-    transition: all ease 0.5s;
-    position: relative;
     background-color: var(--darkText);
     border-radius: 0 0 5px 5px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-.privacySettings .toggleContainer {
+.notificationSettings .toggleContainer {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -21,27 +19,26 @@
     margin-bottom: 20px;
 }
 
-.privacySettings .toggleContainer:first-of-type {
+.notificationSettings .toggleContainer:first-of-type {
     margin-top: 0;
 }
 
-
-.privacySettings .toggleTitle {
+.notificationSettings .toggleTitle {
     font-size: 16px;
     font-weight: 500;
     color: var(--lightText);
 }
 
-.privacySettings .toggleSwitch {
+.notificationSettings .toggleSwitch {
     display: flex;
     align-items: center;
 }
 
-.privacySettings .toggleSwitch input[type="checkbox"] {
+.notificationSettings .toggleSwitch input[type="checkbox"] {
     display: none;
 }
 
-.privacySettings .toggleSwitch label {
+.notificationSettings .toggleSwitch label {
     display: inline-block;
     width: 40px;
     height: 20px;
@@ -52,7 +49,7 @@
     transition: background-color 0.3s;
 }
 
-.privacySettings .toggleSwitch label:before {
+.notificationSettings .toggleSwitch label:before {
     content: "";
     position: absolute;
     top: 2px;
@@ -64,48 +61,29 @@
     transition: left 0.3s;
 }
 
-.privacySettings .toggleSwitch input:checked + label {
+.notificationSettings .toggleSwitch input:checked + label {
     background: var(--primaryAccentGradient);
 }
 
-.privacySettings .toggleSwitch input:checked + label:before {
+.notificationSettings .toggleSwitch input:checked + label:before {
     left: 22px;
 }
 
-.privacySettings .description {
+.notificationSettings .description {
     color: #666666;
     font-size: 12px;
     margin-top: -5px;
 }
 
-.privacySettings .privacyDisclosureWrapper {
-    left: 0;
-    bottom: 10px;
-    display: flex;
-    padding-left: 50px;
-    text-align: center;
-    position: absolute;
-    align-items: center;
-    padding-right: 50px;
-}
-
-.privacySettings .privacyDisclosureWrapper .text {
-    float: left;
-}
-
-.privacySettings .privacyDisclosureWrapper i {
-    float: right;
-}
-
 /* Responsiveness */
 @media only screen and (max-width: 1300px) {
-    .privacySettings {
+    .notificationSettings {
         width: 50%;
     }
 }
 
 @media only screen and (max-width: 650px) {
-    .privacySettings {
+    .notificationSettings {
         width: 75%;
     }
 }

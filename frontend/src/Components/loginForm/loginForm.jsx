@@ -49,6 +49,17 @@ export const LoginForm = () => {
         console.info(`Logging in...`);
         event.preventDefault();
         
+        // Check if the event was triggered by a touch event
+        const isTouchEvent = event.type === 'touchend';
+
+        // On touch devices, emulate a click event
+        if (isTouchEvent) {
+            // Add a delay to allow the touch effect to complete before triggering the click
+            setTimeout(() => {
+                event.currentTarget.click();
+            }, 300);
+        }
+
         // prepare inputs
         checkInputs(loginState.email, loginState.password);
     };
@@ -121,7 +132,7 @@ export const LoginForm = () => {
     };
 
     return (
-        <div className={`loginForm ${theme}`}>
+        <form className={`loginForm ${theme}`} onSubmit={handleSubmit}>
             {/*Email*/}
             <label htmlFor="email">Email address</label>
             <input type="text" name="email" onChange={handleInputChange}/>
@@ -136,7 +147,7 @@ export const LoginForm = () => {
 
             {formError === "" ? <p className="errorText hidden">error</p> : <p className="errorText">{formError}</p>}
 
-            <button type="submit" onClick={handleSubmit}>Login</button>
+            <button type="submit">Login</button>
 
             {/*Login with SSO (Google, Github)*/}
 
@@ -152,6 +163,6 @@ export const LoginForm = () => {
                 <p>New User? <a onClick={signUpClick}>Signup</a></p>
             </div>
 
-        </div>
+        </form>
     );
 };

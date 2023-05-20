@@ -11,7 +11,7 @@ export const ThemeSettingsPage = (props) => {
     const theme = useTheme().theme;
 
     return (
-        <div className="themeSettingsPage">
+        <div className={`themeSettingsPage ${theme}`}>
             <TopBar/>
             <SettingsNavBar/>
             <ThemeSelector/>

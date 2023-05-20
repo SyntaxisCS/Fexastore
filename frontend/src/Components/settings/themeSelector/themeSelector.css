@@ -6,42 +6,42 @@
     margin: auto;
     margin-top: 0;
     padding: 50px;
-    background-color: #ffffff;
+    background-color: var(--lightBackgroundSecondary);
     border-radius: 0 0 5px 5px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  }
+}
   
-  .themeSelector .title {
+.themeSelector .title {
     font-size: 16px;
     font-weight: 500;
-    color: #222237;
-    margin-top: 2em;
-  }
-  
-  .themeSelector select {
+    color: var(--lightText);
+    margin-top: 0em;
+}
+
+.themeSelector select {
     width: 100%;
     padding: 8px;
     margin: 8px 0;
     outline: none;
-    color: #222237;
+    color: var(--lightText);
     display: block;
     font-size: 16px;
     border-radius: 5px;
-    caret-color: #5d02fb;
+    caret-color: var(--primary);
     box-sizing: border-box;
-    border: 1px solid #e2e2e2;
-    background-color: #ffffff;
+    border: 1px solid var(--lightBorder);
+    background-color: var(--lightBackgroundSecondary);
     font-family: "Poppins", sans-serif;
-  }
-  
-  .themeSelector select:focus {
-    border: 1px solid #5d02fb;
-  }
-  
-  .themeSelector button[type="button"] {
+}
+
+.themeSelector select:focus {
+    border: 1px solid var(--primary);
+}
+
+.themeSelector button[type="button"] {
     border: none;
     margin: 3px 0;
-    color: #ffffff;
+    color: var(--darkText);
     font-size: 17px;
     margin-top: 1em;
     cursor: pointer;
@@ -50,10 +50,37 @@
     padding: 10px 15px;
     border-radius: 5px;
     letter-spacing: 2px;
-    background: linear-gradient(to right, #5d02fb 0%, #EC02F7 140%);
-  }
+    background: var(--primaryAccentGradient);
+}
+
+.themeSelector button[type="button"]:hover {
+    background: var(--primary);
+}
   
-  .themeSelector button[type="button"]:hover {
-    background: #5d02fb;
-  }
-  
+/* Dark Theme */
+
+.themeSelector.darkTheme {
+    background-color: var(--darkBackgroundSecondary);
+}
+
+.themeSelector.darkTheme .title {
+    color: var(--darkText);
+}
+
+.themeSelector.darkTheme select {
+    color: var(--darkText);
+    background-color: var(--darkBackgroundSecondary);
+}
+
+/* Responsiveness */
+@media only screen and (max-width: 1300px) {
+    .themeSelector {
+        width: 50%;
+    }
+}
+
+@media only screen and (max-width: 650px) {
+    .themeSelector {
+        width: 75%;
+    }
+}
