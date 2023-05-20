@@ -166,8 +166,8 @@ users.get("/id/:uuid", ensureAuthentication, (req, res) => {
             let publicUser = {
                 uuid: user.uuid,
                 username: user.username,
-                firstName: null,
-                lastName: null,
+                firstName: user.first_name,
+                lastName: user.last_name,
                 isVerified: user.email_verified,
                 dateJoined: user.date_joined,
                 numberOfUploads: user.number_of_uploads,
@@ -175,6 +175,11 @@ users.get("/id/:uuid", ensureAuthentication, (req, res) => {
                 planType: user.plan_type,
                 avatar_url: user.avatar_url
             };
+
+            if (user.name_visibility === false) {
+                publicUser.firstName === null;
+                publicUser.lastName === null;
+            }
 
             res.send(publicUser);
 

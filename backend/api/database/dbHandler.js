@@ -245,8 +245,8 @@ const createUser = async (newUser) => {
                                 // DB query
                                 let currentTimestamp = new Date();
 
-                                const columns = ['uuid', 'first_name', 'last_name', 'username', 'email', 'email_verified', 'email_verified_date', 'number_of_email_changes', 'last_email_change', 'password', 'number_of_password_changes', 'last_password_change', 'date_joined', 'number_of_uploads', 'last_upload_date', 'number_of_downloads', 'last_download_date', 'user_type', 'plan_type', 'trial_used', 'trial_expiration_date', 'months_paid', 'number_of_reported_uploads', 'last_report_date', 'avatar_url'];
-                                const values = [newUser.uuid, newUser.firstName, newUser.lastName, newUser.username, normalizedEmail, false, null, 0, null, hashedPassword, 0, null, currentTimestamp, 0, null, 0, null, "user", "free", false, null, 0, 0, null, newUser.avatarUrl];
+                                const columns = ['uuid', 'first_name', 'last_name', 'username', 'email', 'email_verified', 'email_verified_date', 'number_of_email_changes', 'last_email_change', 'password', 'number_of_password_changes', 'last_password_change', 'date_joined', 'number_of_uploads', 'last_upload_date', 'number_of_downloads', 'last_download_date', 'user_type', 'plan_type', 'trial_used', 'trial_expiration_date', 'months_paid', 'number_of_reported_uploads', 'last_report_date', 'avatar_url', 'name_visibility'];
+                                const values = [newUser.uuid, newUser.firstName, newUser.lastName, newUser.username, normalizedEmail, false, null, 0, null, hashedPassword, 0, null, currentTimestamp, 0, null, 0, null, "user", "free", false, null, 0, 0, null, newUser.avatarUrl, true];
 
                                 let query = {
                                     name: 'createUser',
