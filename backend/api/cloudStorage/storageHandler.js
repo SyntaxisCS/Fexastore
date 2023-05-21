@@ -116,31 +116,31 @@ return new Promise((resolve, reject) => {
 
             // Push the promise returned by s3.upload() to the promises array
             promises.push(new Promise((resolve, reject) => {
-            s3.upload(params, (err, data) => {
-                if (err) {
-                console.error(err);
-                reject(err);
-                }
+                s3.upload(params, (err, data) => {
+                    if (err) {
+                        console.error(err);
+                        reject(err);
+                    }
 
-                let numOfFiles = files.length > 10 ? 10 : files.length;
-                let fileDBObject = {
-                    id: fileId,
-                    uploaderId: userId,
-                    groupId: null,
-                    uploadGroupId: fileGroupId,
-                    numOfFiles,
-                    doKey: filePath,
-                    doBucket: process.env.spacesBucketName,
-                    originalFileName: file.originalname,
-                    systemFileName: fileName,
-                    fileSize: file.size,
-                    fileType: mimeTypeToFileType(file.mimetype)
-                };
+                    let numOfFiles = files.length > 10 ? 10 : files.length;
+                    let fileDBObject = {
+                        id: fileId,
+                        uploaderId: userId,
+                        groupId: null,
+                        uploadGroupId: fileGroupId,
+                        numOfFiles,
+                        doKey: filePath,
+                        doBucket: process.env.spacesBucketName,
+                        originalFileName: file.originalname,
+                        systemFileName: fileName,
+                        fileSize: file.size,
+                        fileType: mimeTypeToFileType(file.mimetype)
+                    };
 
-                console.info(`File ${fileId} uploaded to DigitalOcean in ${fileGroupId} on ${new Date()}`);
-                // Resolve the promise with the fileDBObject
-                resolve(fileDBObject);
-            });
+                    console.info(`File ${fileId} uploaded to DigitalOcean in ${fileGroupId} on ${new Date()}`);
+                    // Resolve the promise with the fileDBObject
+                    resolve(fileDBObject);
+                });
             }));
         });
 
@@ -203,14 +203,17 @@ const deleteFileFromS3 = async (userId, fileGroupId, fileId) => {
     return new Promise((resolve, reject) => {
         let params = {
             Bucket: process.env.spacesBucketName,
-            Key: `${userId}/${fileGroupId}/${fileId}`
+            Key: `uploads/${userId}/${fileGroupId}/${fileId}`
         };
 
-        s3.deleteObject(params).then(data => {
+        s3.deleteObject(params, (err, data) => {
+            if (err) {
+                console.error(err);
+                reject(err);
+            }
+            console.log("Deleted");
+
             resolve("File deleted");
-        }, err => {
-            console.error(err);
-            reject(err);
         });
     });
 };
@@ -225,12 +228,12 @@ const deleteFileGroupFromS3 = async (userId, fileGroupId, fileIdArray) => {
             }
         };
 
-        s3.deleteObjects(params).then(data => {
+        s3.deleteObjects(params, (err, data) => {
+            if (err) {
+                reject(`Error deleted objects: ${err}`);
+            }
 
             resolve(`Files ${fileIdArray} deleted successfully`);
-
-        }, err => {
-            reject(`Error deleted objects: ${err}`);
         });
     });
 };

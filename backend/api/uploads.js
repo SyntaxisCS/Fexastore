@@ -251,6 +251,7 @@ uploads.delete("/s:id", ensureAuthentication, uploadLimiter, (req, res) => {
             
             // delete file from database
             deleteUpload(fileId).then(success => {
+                console.info(`${fileId} deleted`);
                 res.status(204).send(`${fileId} deleted`);
             }, err => {
 

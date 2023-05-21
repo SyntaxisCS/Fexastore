@@ -506,7 +506,7 @@ users.put("/change/username", ensureAuthentication, (req, res) => {
 });
 
 users.put("/change/namevisibility", ensureAuthentication, (req, res) => {
-    if (!req.body.newVis) {
+    if (req.body.newVis === null || req.body.newVis === undefined) {
         res.status(400).send({error: "Missing fields"});
     }
 
