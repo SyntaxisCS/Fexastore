@@ -210,10 +210,9 @@ const deleteFileFromS3 = async (userId, fileGroupId, fileId) => {
             if (err) {
                 console.error(err);
                 reject(err);
-            }
-            console.log("Deleted");
-
-            resolve("File deleted");
+            } else {
+                resolve("File deleted");
+            };
         });
     });
 };
