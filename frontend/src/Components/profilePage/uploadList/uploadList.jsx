@@ -74,7 +74,7 @@ export const UploadList = (props) => {
             </div>
 
             {uploads.length > 0 ? uploads.map((file, index) => {
-                return (<UploadCard key={index} title={file.title} uploader={props.user.username} useCase={file.use_case} tags={file.tags} date={file.updated_date} fileSize={file.file_size} owner={props.user.uuid === auth.user.uuid ? true : false}/>)
+                return (<UploadCard key={index} id={file.id} groupId={file.upload_group_id} title={file.title} uploader={props.user.username} useCase={file.use_case} tags={file.tags} date={file.updated_date} fileSize={file.file_size} owner={props.user.uuid === auth.user.uuid ? true : false}/>)
             }) : <h3 className="emptyProfile">No uploads yet! Stingy stingy!</h3>}
         </div>
     );

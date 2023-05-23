@@ -23,6 +23,7 @@ import { NotificationSettingsPage } from "./Pages/Settings/notificationSettings"
 import { PrivacyDisclosureSettingsPage} from "./Pages/Settings/privacyDisclosureSettings";
 import { PrivacyDisclosureDigitalOceanPage } from "./Pages/Settings/disclosures/privacyDisclosureDigitalOceanPage";
 import { PrivacyDisclosureOAuthPage } from "./Pages/Settings/disclosures/privacyDisclosureOauth";
+import { UploadGroupPage } from "./Pages/uploadGroupPage";
 
 // Replace this with completed pages
 // from pages directory: single react components that envelope several components into a single page
@@ -42,6 +43,10 @@ ReactDOM.render((
                     <Route path="/" element={<HomePage/>}/>
                     <Route path="/upload" element={<RequireAuth><UploadPage/></RequireAuth>}/>
                     <Route path="/profile/:username" element={<ProfilePage/>}/>
+
+                    {/*Uploads */}
+                    <Route path="/upload/:groupId/" element={<RequireAuth><UploadGroupPage/></RequireAuth>}/>
+                    <Route path="/upload/:groupId/:fileId" element={""}/>
 
                     {/*Settings*/}
                     <Route path="/settings/account" element={<RequireAuth><AccountSettingsPage/></RequireAuth>}/>

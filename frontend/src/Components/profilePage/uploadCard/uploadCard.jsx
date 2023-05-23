@@ -4,11 +4,20 @@ const axios = require("axios");
 // Components
 import defaultLogo from "../../../Assets/Images/default-logo.png";
 import {formatDate} from "../../../Utils/dateBeautifier";
+import {useNavigate} from "react-router-dom";
 import {fileSizeWrapper} from "../../../Utils/fileSizeBeautifier";
+import { useTheme } from "../../../Utils/Themes/theme";
 import "./uploadCard.css";
 
 export const UploadCard = (props) => {
+    // URLs
+    const backendURL = process.env.backendURL;
 
+    // Utils
+    const theme = useTheme().theme;
+    const navigate = useNavigate();
+
+    // States
     const [useCase, setUseCase] = React.useState([]);
     const [tags, setTags] = React.useState([]);
 
@@ -39,11 +48,34 @@ export const UploadCard = (props) => {
     };
 
     const handleDeleteClick = () => {
-
+        deleteAPICall();
     };
 
-    const apiCall = () => {
+    const groupPageClick = () => {
+        navigate(`/upload/${props.groupId}`);
+    }
 
+    const deleteAPICall = () => {
+        const fileId = props.id;
+
+        axios.delete(`${backendURL}/uploads/s${fileId}`, {
+            headers: {
+                "Content-Type": "application/json"
+            },
+            withCredentials: true
+        }).then(success => {
+            console.info(success.data);
+            window.location.reload();
+        }, err => {
+            let errResponse = err.response;
+
+            if (errResponse.status === 404) {
+                // Upload does not exist
+                console.warn("No uploads found with that id");
+            } else {
+                console.error(err);
+            }
+        });
     };
 
     React.useEffect(() => {
@@ -67,10 +99,10 @@ export const UploadCard = (props) => {
         <div className="uploadCard">
         <img src={defaultLogo} alt="logo" />
 
-        {props.owner ? <div className="deleteButton"><i className="bx bx-trash-alt"/></div> : <div style={{display: "none"}}/>}
+        {props.owner ? <div className="deleteButton" onClick={handleDeleteClick}><i className="bx bx-trash-alt"/></div> : <div style={{display: "none"}}/>}
 
             <div className="uploadInfo">
-                <h1 className="uploadTitle">{props.title ? props.title : "Title"}</h1>
+                <h1 className="uploadTitle" onClick={groupPageClick}>{props.title ? props.title : "Title"}</h1>
                 <p className="uploadName">{props.uploader ? props.uploader : "username"}</p>
                 <p className="uploadDescription">{props.description ? props.description : ""}</p>
                 

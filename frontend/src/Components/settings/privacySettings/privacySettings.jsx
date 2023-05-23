@@ -3,6 +3,7 @@ const axios = require("axios");
 
 // Components
 import {useNavigate} from "react-router-dom";
+import {useAuth} from "../../../Utils/Authentication/auth";
 import {useTheme} from "../../../Utils/Themes/theme";
 import "./privacySettings.css";
 
@@ -13,9 +14,11 @@ export const PrivacySettings = (props) => {
     // Utils
     const theme = useTheme().theme;
     const navigate = useNavigate();
+    const auth = useAuth();
 
     // States
     const [toggleState, setToggleState] = React.useState({nameToggle: true});
+    const [apiState, setApiState] = React.useState({nameToggle: true}); 
 
     // Functions
     const disclosureClick = () => {
@@ -28,6 +31,7 @@ export const PrivacySettings = (props) => {
         let newEdit = {...toggleState};
 
         newEdit[id] = checked;
+
         setToggleState(newEdit);
 
         makeAPICalls(id);
@@ -44,6 +48,13 @@ export const PrivacySettings = (props) => {
             newVis: toggleState.nameToggle
         };
 
+        // Flip nameToggle (I have no idea why, I just have to)
+        if (toggleState.nameToggle) {
+            callBody.newVis = false;
+        } else {
+            callBody.newVis = true;
+        }
+
         axios.put(`${backendURL}/users/change/namevisibility`, callBody, {
             headers: {
                 "Content-Type": "application/json"
@@ -54,10 +65,30 @@ export const PrivacySettings = (props) => {
         }, err => {
             console.warn(err);
         });
-
     };
 
+    const getUserPrivacyInfo = () => {
+        axios.get(`${backendURL}/users/id/${auth.user.uuid}`, {
+            headers: {
+                "Content-Type": "application/json"
+            },
+            withCredentials: true
+        }).then(user => {
+            
+            // modify toggle states
+            let newEdit = {...toggleState};
 
+            newEdit.nameToggle = user.data.name_visibility;
+
+            setToggleState(newEdit);
+        }, err => {
+            console.warn(err);
+        });
+    };
+
+    React.useEffect(() => {
+        getUserPrivacyInfo();
+    }, []);
 
     return (
         <div className={`privacySettings ${theme}`}>
