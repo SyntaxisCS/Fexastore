@@ -11,3 +11,7 @@ const nameFromKey = (key, files) => {
     return "No provided files matched with the key provided";
 
 };
+
+module.exports = {
+    nameFromKey
+}

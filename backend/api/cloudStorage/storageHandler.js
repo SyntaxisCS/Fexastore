@@ -39,32 +39,37 @@ const getFilesByGroupId = async (userId, groupId) => {
             Prefix: `uploads/${userId ? userId : "*"}/${groupId}`
         };
 
-        s3.listObjectsV2(params).then(data => {
-            const files = [];
-
-            data.Contents.forEach(file => {
-
-                getSignedUrl(file.Key).then(signedUrl => {
-                    
-                    files.push({
-                        key: file.Key,
-                        url: signedUrl
-                    });
-
-                }, err => {
-                    console.error(err);
-                    reject(`Error generating url for ${file.Key}`);
-                });
-            });
-
-            if (files.length > 0) {
-                resolve(files);
+        s3.listObjectsV2(params, async (err, data) => {
+            if (err) {
+                console.error(err);
+                reject(err);
             } else {
-                reject(``);
+                const files = [];
+                const promises = data.Contents.map(file => {
+                    return new Promise((resolve, reject) => {
+                        getSignedUrl(file.Key).then(signedUrl => {
+                            files.push({
+                                key: file.Key,
+                                url: signedUrl
+                            });
+                            resolve();
+                        }, err => {
+                            console.error(err);
+                            reject(`Error generating url for ${file.Key}`);
+                        });
+                    });
+                });
+
+                Promise.all(promises).then(() => {
+                    if (files.length > 0) {
+                        resolve(files);
+                    } else {
+                        reject(`No files created`);
+                    }
+                }).catch(err => {
+                    reject(err);
+                })
             }
-        }, err => {
-            console.error(err);
-            reject(err);
         });
     });
 };

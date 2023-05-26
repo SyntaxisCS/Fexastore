@@ -19,6 +19,28 @@ const mimeTypeToFileType = (mimeType) => {
     }
 };
 
+const fileTypeToMimeType = (fileType) => {
+    switch(fileType) {
+        // Text Files
+        case "txt":
+            return "text/plain";
+
+        case "csv":
+            return "text/csv";
+
+        case "json":
+            return "application/json";
+
+        // Application FIles
+        case "pdf":
+            return "application/pdf";
+        
+        default:
+            return null;
+    }
+}
+
 module.exports = {
-    mimeTypeToFileType
+    mimeTypeToFileType,
+    fileTypeToMimeType
 };

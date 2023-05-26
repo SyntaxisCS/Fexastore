@@ -5,6 +5,9 @@ const {rateLimit, MemoryStore} = require("express-rate-limit");
 // JSZip
 const JSZip = require("jszip");
 
+// Stream
+const {Readable} = require("stream");
+
 // Crypto
 const crypto = require("crypto");
 
@@ -32,6 +35,8 @@ const { createUpload, getUploadById, getUploadGroupById, getUploadsByUserId, del
 
 // Helpers
 const { getSignedUrl, createNewFileGroupInS3, deleteFileGroupFromS3, deleteFileFromS3, getFileById, getFilesByGroupId } = require("./cloudStorage/storageHandler");
+const { fileTypeToMimeType } = require("../Utils/Helpers/fileHelpers");
+const { nameFromKey } = require("../Utils/Helpers/nameFromKey"); 
 
 // Middleware
 const ensureAuthentication = (req, res, next) => {
@@ -121,11 +126,10 @@ uploads.get("/download-s/:id", ensureAuthentication, fileRequestLimiter, (req, r
         
         // get url
         getFileById(fileInfo.do_key).then(file => {
-            res.status(200).send(info);
-            
+
             // get file as blob
-            axios.get(info.url, {responseType: "blob"}).then(response => {
-                res.set("Content-Type", "application");
+            axios.get(file.url, {responseType: "blob"}).then(response => {
+                res.set("Content-Type", fileTypeToMimeType(fileInfo.file_type));
                 // must set mimetype and file type
                 res.set("Content-Disposition", `attachment; filename=${fileInfo.system_file_name}.${fileInfo.fileType}`);
                 res.status(200).send(response.data);
@@ -156,55 +160,60 @@ uploads.get("/download-m/:groupId", ensureAuthentication, fileRequestLimiter, (r
 
     getUploadGroupById(groupId).then(fileInfos => {
 
-        getFilesByGroupId(groupId).then(files => {
-
-            // zip file
+        getFilesByGroupId(req.session.user.uuid, groupId).then(files => {
+            // Create a new JSZip instance
             const zip = new JSZip();
 
-            files.forEach(file => {
+            // Create an array of promises for downloading and adding files to the zip
+            const promises = files.map((file, index) => {
+                return axios.get(file.url, {responseType: "arrayBuffer"}).then(response => {
+                    let fileName = fileInfos[index].system_file_name;
 
-                // get file name
-                let fileName = nameFromKey(file.key, fileInfos);
-                if (fileName === "No provided files matched with the key provided") {
-                    const randomBytes = crypto.randomBytes(12).toString("hex");
-                    
-                    // file was not provided just make fileName random characters
-                    fileName = randomBytes;
-                }
+                    // Extract the file extension from the original file name
+                    let fileExtension = fileInfos[index].file_type;
 
-                // get file blob
-                axios.get(file.url, {responseType: "blob"}).then(response => {
-                    zip.file(fileName, response.data);
+                    // Add the file to the zip with the appropiate file name
+                    zip.file(`${fileName}.${fileExtension}`, response.data);
                 }, err => {
-                    console.error(`Error downloading file ${fileName}: ${err}`);
+                    console.error(`Error downloading file: ${err}`);
                 });
             });
 
-            // once the zip file is complete, send it to the client
-            zip.generateAsync({type: "blob"}).then(zipBlob => {
+            // Wait for all the files to be downloaded and added to the zip
+            Promise.all(promises).then(() => {
 
-                res.set("Content-Type", "application/zip");
-                res.set("Content-Disposition", `attachment; filename=files.zip`);
-                res.status(200).send(zipBlob);
+                // Generate the zip file
+                zip.generateAsync({type: "nodebuffer"}).then(content => {
+                    const stream = new Readable();
+                    stream.push(content);
+                    stream.push(null);
+
+                    // Set the appropriate response headers for downloading the zip file
+                    res.set("Content-Type", "application/zip");
+                    res.set("Content-Disposition", "attachment; filename=files.zip");
+
+                    // Pipe the stream to the response object
+                    stream.pipe(res);
+                });
 
             }, err => {
-                console.error(err);
+                console.error(`Error generating zip file: ${err}`);
+                res.status(500).send({ error: "Error generating zip file" }); 
             });
 
         }, err => {
             if (err === "No such key") {
-                res.status(404).send({error: err});
+                res.status(404).send({ error: err });
             } else {
                 console.error(err);
-                res.status(500).send({error: "Error getting that file"});
+                res.status(500).send({ error: "Error getting that file" });
             }
         });
-
     }, err => {
         if (err === "No files with that group id") {
-            res.status(404).send({error: err});
+            res.status(404).send({ error: err });
         } else {
-            res.status(500).send({error: "Server error"});
+            res.status(500).send({ error: "Server error" });
         }
     });
 });
